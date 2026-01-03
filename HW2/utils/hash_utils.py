@@ -1,17 +1,41 @@
 import random
+from abc import ABC, abstractmethod
+from typing import Optional
+
 import xxhash
 
 
-class Hash:
+class Hash(ABC):
 
-    def __init__(self, num_values: int):
+    def __init__(self):
         self.seed = random.getrandbits(128)
-        self.num_values = num_values
 
-    def digest(self, feature):
+    def base_digest(self, feature) -> int:
         if isinstance(feature, str):
             encoded_feature = feature.encode('utf-8')
         else:
             encoded_feature = bytes(feature)
 
-        return xxhash.xxh64(encoded_feature, self.seed).intdigest() % self.num_values
+        return xxhash.xxh64(encoded_feature, self.seed).intdigest()
+
+
+    @abstractmethod
+    def digest(self, feature) -> int:
+        pass
+
+
+class BucketHash(Hash):
+
+    def __init__(self, num_buckets):
+        super().__init__()
+        self.num_buckets = num_buckets
+
+    def digest(self, feature) -> int:
+        return self.base_digest(feature) % self.num_buckets
+
+
+class SignHash(Hash):
+
+    def digest(self, feature) -> int:
+        # if even return -1, if odd return 1
+        return self.base_digest(feature) % 2 or -1
