@@ -16,7 +16,7 @@ class Hash(ABC):
         else:
             encoded_feature = bytes(feature)
 
-        xxhash.xxh64(encoded_feature, self.seed).intdigest()
+        return xxhash.xxh64(encoded_feature, self.seed).intdigest()
 
 
     @abstractmethod
