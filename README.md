@@ -1,6 +1,6 @@
 Tasks:
 1. Arg parse maybe? 0.25 (Shahar)
-2. Download the data into the repo 0 (Shahar)
+2. Download the data into the repo 0 (Shahar) (DONE)
 3. Chunk loader for the training dataset 0.25 (Shahar)
 4. And event class (pydantic of whatever) 0.25 (Shahar)
 5. Morris estimator 1 (Tamar)
