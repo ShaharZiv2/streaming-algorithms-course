@@ -9,4 +9,3 @@ class Args(BaseModel):
     cs_rows: Literal[5, 7, 9]
     cs_buckets: Literal[2048, 8192]
     ams_rows: Literal[16, 64, 256]
-
