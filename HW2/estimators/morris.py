@@ -21,5 +21,16 @@ class MorrisEstimator(Estimator):
         return int(np.median(group_means))
 
     def report(self):
-        pass
+        """Report memory usage of the Morris Estimator."""
+        # Memory for the counters array: r integers
+        # numpy int uses platform-dependent size, but counters are dtype=int (typically int64)
+        counters_memory = self.counters.nbytes
+
+        # Memory for configuration parameters (num_counters and num_groups)
+        # Python integers typically use 28 bytes each
+        config_memory = 1 * 28
+
+        total_memory = counters_memory + config_memory
+
+        return total_memory
 

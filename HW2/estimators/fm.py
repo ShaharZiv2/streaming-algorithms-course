@@ -25,4 +25,18 @@ class FMEstimator(Estimator):
         return int(np.median(group_estimates))
 
     def report(self):
-        pass
+        """Report memory usage of the FM Estimator."""
+        # Memory for the estimators array: r floats (float64)
+        estimators_memory = self.estimators.nbytes
+
+        # Memory for hash functions list
+        # Each NormalizedHash object is approximately 64 bytes (rough estimate)
+        hashes_memory = len(self.hashes) * 64
+
+        # Memory for configuration parameters (num_estimators and num_groups)
+        # Python integers typically use 28 bytes each
+        config_memory = 2 * 28
+
+        total_memory = estimators_memory + hashes_memory + config_memory
+
+        return total_memory

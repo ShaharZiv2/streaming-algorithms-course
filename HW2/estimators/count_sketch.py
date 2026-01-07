@@ -19,23 +19,36 @@ class CountSketch(Estimator):
         self.sign_functions = [SignHash() for _ in range(r)]
         self.table = np.zeros((r, b), dtype=int)
 
+    def _compute_hashes(self, feature):
+        """Compute bucket and sign hashes for a feature."""
+        buckets = np.vectorize(lambda h: h.digest(feature))(self.hash_functions)
+        signs = np.vectorize(lambda s: s.digest(feature))(self.sign_functions)
+        return buckets, signs
+
     def update(self, feature, count: int = 1):
         """Update the sketch with a feature and optional count."""
-        for i in range(self.rows):
-            bucket = self.hash_functions[i].digest(feature)
-            sign = self.sign_functions[i].digest(feature)
-            self.table[i][bucket] += sign * count
+        buckets, signs = self._compute_hashes(feature)
+        self.table[np.arange(self.rows), buckets] += signs * count
 
     def estimate(self, feature) -> int:
         """Estimate the count for a given feature using median of signed estimates."""
-        estimates = []
-        for i in range(self.rows):
-            bucket = self.hash_functions[i].digest(feature)
-            sign = self.sign_functions[i].digest(feature)
-            estimates.append(sign * self.table[i][bucket])
+        buckets, signs = self._compute_hashes(feature)
+        estimates = signs * self.table[np.arange(self.rows), buckets]
         return int(np.median(estimates))
 
     def report(self):
-        """Report sketch statistics."""
-        pass
+        """Report sketch statistics and memory usage."""
+        # Memory for the table: rows x buckets integers
+        table_memory = self.table.nbytes
+
+        # Memory for hash functions: rows BucketHash objects + rows SignHash objects
+        # Each hash object is approximately 64 bytes (rough estimate)
+        hash_memory = (len(self.hash_functions) + len(self.sign_functions)) * 64
+
+        # Memory for configuration parameters (rows and buckets)
+        config_memory = 2 * 28
+
+        total_memory = table_memory + hash_memory + config_memory
+
+        return total_memory
 
