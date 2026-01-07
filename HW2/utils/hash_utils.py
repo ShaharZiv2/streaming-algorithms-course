@@ -23,6 +23,10 @@ class Hash(ABC):
     def digest(self, feature) -> int:
         pass
 
+class NormalizedHash(Hash):
+
+    def digest(self, feature) -> int:
+        return self.base_digest(feature) / (2**64)
 
 class BucketHash(Hash):
 
