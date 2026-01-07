@@ -9,8 +9,8 @@ class CountSketch(Estimator):
         Count Sketch with configurable rows and buckets.
 
         Args:
-            r: Number of rows (typically 5, 7, or 9)
-            b: Number of buckets per row (typically 2048 or 8192)
+            rows: Number of rows (typically 5, 7, or 9)
+            buckets: Number of buckets per row (typically 2048 or 8192)
         """
         self.rows = rows
         self.buckets = buckets

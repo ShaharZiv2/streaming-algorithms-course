@@ -2,7 +2,7 @@ from schemas.args import Args
 from utils.arg_utils import parse_arguments
 from utils.sketch_manager import SketchManager
 from utils.stream import Stream, SourceFiles
-import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
 
 
 
