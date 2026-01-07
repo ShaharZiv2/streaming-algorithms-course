@@ -19,6 +19,8 @@ class SketchManager:
 
         self.num_events_f1_est = MorrisEstimator()
 
+        self.attack_f1_estimator = MorrisEstimator()
+
     def __new__(cls, args: Args):
         if not cls._instance:
             cls._instance = super().__new__(cls)
@@ -36,12 +38,15 @@ class SketchManager:
 
         self.num_events_f1_est.vectorized_update(window.index)
 
+        self.attack_f1_estimator.vectorized_update(window[window['Label'] == '1'])
+
     def reset(self):
         for estimator in self.estimators:
             estimator.reset()
 
     def estimate(self):
-        return np.array([estimator.estimate() for estimator in self.estimators])
+        estimations = [estimator.estimate() for estimator in self.estimators]
+        estimations.append(estimations[-1] / estimations[-2])
 
     @property
     def estimators(self):
@@ -52,4 +57,5 @@ class SketchManager:
             self.dst_ip_f2_est,
             self.dst_port_f0_est,
             self.num_events_f1_est,
+            self.attack_f1_estimator,
         ]
