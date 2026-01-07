@@ -1,6 +1,5 @@
 import random
 from abc import ABC, abstractmethod
-from typing import Optional
 
 import xxhash
 
@@ -11,12 +10,7 @@ class Hash(ABC):
         self.seed = random.getrandbits(128)
 
     def base_digest(self, feature) -> int:
-        if isinstance(feature, str):
-            encoded_feature = feature.encode('utf-8')
-        else:
-            encoded_feature = bytes(feature)
-
-        return xxhash.xxh64(encoded_feature, self.seed).intdigest()
+        return xxhash.xxh64(feature.encode('utf-8'), self.seed).intdigest()
 
 
     @abstractmethod
