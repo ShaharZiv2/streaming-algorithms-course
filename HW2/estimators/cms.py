@@ -35,4 +35,4 @@ class CountMinSketch(Estimator):
         pass
 
     def reset(self):
-        self.table = np.zeros((self.depth, self.width), dtype=int)
+        self.table.fill(0)

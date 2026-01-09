@@ -29,4 +29,4 @@ class FMEstimator(Estimator):
         pass
 
     def reset(self):
-        self.estimators = np.ones(self.num_estimators, dtype=float)
+        self.estimators.fill(1)

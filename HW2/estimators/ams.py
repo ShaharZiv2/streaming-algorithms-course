@@ -27,7 +27,7 @@ class AMSEstimator(Estimator):
         pass
 
     def reset(self):
-        self.matrix = np.zeros((self.sqrt_r, self.sqrt_r), dtype=int)
+        self.matrix.fill(0)
 
     def __init_hash_matrix(self):
         self.hash_matrix = [[SignHash() for _ in range(self.sqrt_r)] for _ in range(self.sqrt_r)]

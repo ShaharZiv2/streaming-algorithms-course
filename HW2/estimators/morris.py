@@ -25,7 +25,7 @@ class MorrisEstimator(Estimator):
         pass
 
     def reset(self):
-        self.counters = np.zeros(self.num_counters, dtype=int)
+        self.counters.fill(0)
 
     def vectorized_update(self, vector):
         for _ in range(len(vector)):
