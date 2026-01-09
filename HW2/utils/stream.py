@@ -33,5 +33,6 @@ class Stream:
         except StopIteration:
             if window:
                 return pd.DataFrame(window, columns=self.headers).astype(dtype='string')
+            raise
 
         return pd.DataFrame(window, columns=self.headers).astype(dtype='string')
