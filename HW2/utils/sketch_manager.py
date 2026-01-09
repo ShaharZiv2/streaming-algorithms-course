@@ -49,6 +49,7 @@ class SketchManager:
     def estimate(self):
         estimations = [estimator.estimate() for estimator in self.estimators]
         estimations.append(estimations[-1] / estimations[-2])
+        return np.array(estimations)
 
     @property
     def estimators(self):
