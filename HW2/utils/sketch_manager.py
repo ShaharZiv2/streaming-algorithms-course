@@ -3,6 +3,7 @@ import pandas as pd
 
 from estimators import FMEstimator, AMSEstimator, MorrisEstimator
 from schemas.args import Args
+from utils.time_utils import func_timer
 
 
 class SketchManager:
@@ -26,6 +27,7 @@ class SketchManager:
             cls._instance = super().__new__(cls)
         return cls._instance
 
+    @func_timer
     def sketch(self, window: pd.DataFrame) -> None:
         """Updates all estimators with the relevant fields"""
         self.src_ip_f0_est.vectorized_update(window['srcip'])

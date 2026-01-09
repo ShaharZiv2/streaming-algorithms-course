@@ -2,6 +2,8 @@ from enum import StrEnum
 import pandas as pd
 import csv
 
+from utils.time_utils import func_timer
+
 END_TIME_COLUMN = 29
 
 class SourceFiles(StrEnum):
@@ -19,6 +21,7 @@ class Stream:
     def __iter__(self):
         return self
 
+    @func_timer
     def __next__(self):
         window = []
 
