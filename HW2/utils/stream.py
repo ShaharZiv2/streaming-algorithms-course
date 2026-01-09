@@ -14,28 +14,24 @@ class Stream:
         self.file = open(data_file_path, 'r')
         self.csv_reader = csv.reader(self.file, delimiter=',')
         self.headers = self.csv_reader.__next__()
-        self.line = self.csv_reader.__next__()
         self.window_size = window_size
-        self.finished = False
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        if self.finished:
-            raise StopIteration
-
         window = []
-        starting_timestamp = int(self.line[END_TIME_COLUMN])
-        while int(self.line[END_TIME_COLUMN]) - starting_timestamp < self.window_size:
-            window.append(self.line)
-            try:
-                self.line = self.csv_reader.__next__()
-            except StopIteration:
-                self.finished = True
-                if window:
-                    return pd.DataFrame(window, columns=self.headers).astype(dtype='string')
-                raise
 
+        try:
+            first_line = line = self.csv_reader.__next__()
+            window.append(first_line)
+
+            starting_timestamp = int(first_line[END_TIME_COLUMN])
+            while int(line[END_TIME_COLUMN]) - starting_timestamp < self.window_size:
+                line = self.csv_reader.__next__()
+                window.append(line)
+        except StopIteration:
+            if window:
+                return pd.DataFrame(window, columns=self.headers).astype(dtype='string')
 
         return pd.DataFrame(window, columns=self.headers).astype(dtype='string')
