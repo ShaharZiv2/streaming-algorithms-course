@@ -11,7 +11,6 @@ class AMSEstimator(Estimator):
         self.sqrt_r = math.isqrt(r)
         self.__init_hash_matrix()
         self.matrix = np.zeros((self.sqrt_r, self.sqrt_r), dtype=int)
-        super().__init__()
 
     def update(self, feature):
         for row in range(self.sqrt_r):

@@ -11,12 +11,10 @@ class CountMinSketch(Estimator):
         Args:
             w: Width of the sketch table (typically 2048 or 8192)
         """
-        super().__init__()
         self.width = width
         self.depth = 4
         self.hash_functions = [BucketHash(self.width) for _ in range(self.depth)]
         self.table = np.zeros((self.depth, self.width), dtype=int)
-        super().__init__()
 
     def update(self, feature, count: int = 1):
         """Update the sketch with a feature and optional count."""
