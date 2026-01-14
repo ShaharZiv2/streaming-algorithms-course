@@ -1,14 +1,17 @@
 import math
 
 import numpy as np
+
+from estimators import Estimator
 from utils.hash_utils import SignHash
 
-class AMSEstimator:
+class AMSEstimator(Estimator):
 
     def __init__(self, r: int):
         self.sqrt_r = math.isqrt(r)
         self.__init_hash_matrix()
         self.matrix = np.zeros((self.sqrt_r, self.sqrt_r), dtype=int)
+        super().__init__()
 
     def update(self, feature):
         for row in range(self.sqrt_r):
@@ -22,6 +25,9 @@ class AMSEstimator:
     def report(self):
         # I don't really know what to put here....
         pass
+
+    def reset(self):
+        self.matrix = np.zeros((self.sqrt_r, self.sqrt_r), dtype=int)
 
     def __init_hash_matrix(self):
         self.hash_matrix = [[SignHash() for _ in range(self.sqrt_r)] for _ in range(self.sqrt_r)]

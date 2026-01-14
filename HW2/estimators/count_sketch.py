@@ -4,20 +4,20 @@ from estimators.estimator import Estimator
 
 
 class CountSketch(Estimator):
-    def __init__(self, r: int, b: int):
+    def __init__(self, rows: int, buckets: int):
         """
         Count Sketch with configurable rows and buckets.
 
         Args:
-            r: Number of rows (typically 5, 7, or 9)
-            b: Number of buckets per row (typically 2048 or 8192)
+            rows: Number of rows (typically 5, 7, or 9)
+            buckets: Number of buckets per row (typically 2048 or 8192)
         """
+        self.rows = rows
+        self.buckets = buckets
+        self.hash_functions = [BucketHash(self.buckets) for _ in range(self.rows)]
+        self.sign_functions = [SignHash() for _ in range(self.rows)]
+        self.table = np.zeros((self.rows, self.buckets), dtype=int)
         super().__init__()
-        self.rows = r
-        self.buckets = b
-        self.hash_functions = [BucketHash(b) for _ in range(r)]
-        self.sign_functions = [SignHash() for _ in range(r)]
-        self.table = np.zeros((r, b), dtype=int)
 
     def update(self, feature, count: int = 1):
         """Update the sketch with a feature and optional count."""
@@ -39,3 +39,5 @@ class CountSketch(Estimator):
         """Report sketch statistics."""
         pass
 
+    def reset(self):
+        self.table = np.zeros((self.rows, self.buckets), dtype=int)

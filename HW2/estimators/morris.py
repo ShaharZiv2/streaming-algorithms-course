@@ -3,7 +3,8 @@ from .estimator import Estimator
 import math
 
 class MorrisEstimator(Estimator):
-    def __init__(self, r: int):
+    def __init__(self, r: int = 64):
+        super().__init__()
         self.num_counters = r
         self.num_groups =  math.isqrt(r)
         self.counters = np.zeros(r, dtype=int)
@@ -22,4 +23,11 @@ class MorrisEstimator(Estimator):
 
     def report(self):
         pass
+
+    def reset(self):
+        self.counters = np.zeros(self.num_counters, dtype=int)
+
+    def vectorized_update(self, vector):
+        for _ in range(len(vector)):
+            self.update()
 

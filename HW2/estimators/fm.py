@@ -4,11 +4,12 @@ from utils.hash_utils import NormalizedHash
 import math
 
 class FMEstimator(Estimator):
-    def __init__(self, r: int):
+    def __init__(self, r: int = 64):
         self.num_estimators = r
         self.num_groups = math.isqrt(r)
         self.estimators = np.ones(r, dtype=float)
         self.hashes = [NormalizedHash() for _ in range(r)]
+        super().__init__()
 
     def update(self, feature):
         hash_values = np.vectorize(lambda h: h.digest(feature))(self.hashes)
@@ -26,3 +27,6 @@ class FMEstimator(Estimator):
 
     def report(self):
         pass
+
+    def reset(self):
+        self.estimators = np.ones(self.num_estimators, dtype=float)
