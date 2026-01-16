@@ -1,22 +1,30 @@
+import pandas as pd
+
 from schemas.args import Args
 from utils.arg_utils import parse_arguments
 from utils.sketch_manager import SketchManager
 from utils.stream import Stream, SourceFiles
-from sklearn.ensemble import RandomForestClassifier
+from utils.time_utils import func_timer
 
 
-
-
+@func_timer
 def main():
     args: Args = parse_arguments()
     sketch_manager = SketchManager(args)
-    for window in Stream(SourceFiles.TRAINING, window_size=args.window_size):
-        sketch_manager.sketch(window)
-        window_estimation = sketch_manager.estimate()
-        # train_model()
-        sketch_manager.reset()
-        pass
+    training_stream = Stream(SourceFiles.TRAINING, args.window_size)
 
+    window_estimations = []
+
+    for event in training_stream:
+        sketch_manager.sketch(event)
+        if training_stream.window_done:
+            window_estimations.append(sketch_manager.estimate())
+
+            sketch_manager.reset()
+            training_stream.reset_window()
+
+    window_df = pd.DataFrame(window_estimations, columns=sketch_manager.estimator_names)
+    window_df.to_csv('datasets/window_estimations.csv', index=False)
 
 if __name__ == '__main__':
     main()

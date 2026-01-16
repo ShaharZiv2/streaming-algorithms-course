@@ -17,7 +17,6 @@ class CountSketch(Estimator):
         self.hash_functions = [BucketHash(self.buckets) for _ in range(self.rows)]
         self.sign_functions = [SignHash() for _ in range(self.rows)]
         self.table = np.zeros((self.rows, self.buckets), dtype=int)
-        super().__init__()
 
     def update(self, feature, count: int = 1):
         """Update the sketch with a feature and optional count."""

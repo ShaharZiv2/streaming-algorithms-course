@@ -9,7 +9,6 @@ class FMEstimator(Estimator):
         self.num_groups = math.isqrt(r)
         self.estimators = np.ones(r, dtype=float)
         self.hashes = [NormalizedHash() for _ in range(r)]
-        super().__init__()
 
     def update(self, feature):
         hash_values = np.vectorize(lambda h: h.digest(feature))(self.hashes)

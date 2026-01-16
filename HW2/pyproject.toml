@@ -12,6 +12,7 @@ scikit-learn = "*"
 pydantic = "*"
 xxhash = "*"
 pytest = "*"
+matplotlib = "*"
 
 
 [build-system]
