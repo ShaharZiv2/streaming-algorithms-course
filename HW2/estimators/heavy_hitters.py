@@ -1,4 +1,3 @@
-from collections import defaultdict
 from typing import List
 from estimators.estimator import Estimator
 
