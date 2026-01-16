@@ -16,10 +16,10 @@ class HeavyHittersSketch(Estimator):
             else:
                 for heavy_hitter in self.buckets:
                     self.buckets[heavy_hitter] -= 1
-                    if self.buckets[heavy_hitter] == 0:
-                        self.buckets.pop(heavy_hitter)
 
-    def estimate(self, feature) -> List[str]:
+                [self.buckets.pop(heavy_hitter) for heavy_hitter in list(self.buckets.keys()) if self.buckets[heavy_hitter] == 0]
+
+    def estimate(self) -> List[str]:
         return list(self.buckets.keys())
 
     def report(self):

@@ -23,7 +23,7 @@ def main():
             sketch_manager.reset()
             training_stream.reset_window()
 
-    window_df = pd.DataFrame(window_estimations, columns=sketch_manager.estimator_names)
+    window_df = pd.DataFrame(window_estimations)
     window_df.to_csv('datasets/window_estimations.csv', index=False)
 
 if __name__ == '__main__':
