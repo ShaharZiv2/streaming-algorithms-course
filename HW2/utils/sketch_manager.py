@@ -75,7 +75,7 @@ class SketchManager:
 
         # --- FEATURE D: SOURCE IP ---
         # Get top-k candidate keys from the candidate list
-        src_candidates = self.count_source_ip_heavy_hitter.estimate()[:self.k]
+        src_candidates = self.count_source_ip_heavy_hitter.estimate()
         src_counts = [self.source_ip_cms.estimate(ip) for ip in src_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
