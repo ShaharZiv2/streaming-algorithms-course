@@ -101,7 +101,7 @@ class SketchManager:
         dst_port_counts = [self.dst_port_cms.estimate(port) for port in dst_port_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
-        DstPort_MaxCount = max(dst_port_counts) if dst_port_counts else 0
+        DstPort_MaxCount = max(dst_port_counts)
 
         # Feature D2: fraction of mass in top-k candidates
         DstPort_FractionOfMass = sum(dst_port_counts) / total_volume
