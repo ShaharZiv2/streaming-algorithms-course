@@ -86,7 +86,7 @@ class SketchManager:
 
         # --- FEATURE D: DESTINATION IP ---
         # Get top-k candidate keys for destination IPs
-        dst_ip_candidates = self.count_dest_ip_heavy_hitter.estimate()[:self.k]
+        dst_ip_candidates = self.count_dest_ip_heavy_hitter.estimate()
         dst_ip_counts = [self.dest_ip_cms.estimate(ip) for ip in dst_ip_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
