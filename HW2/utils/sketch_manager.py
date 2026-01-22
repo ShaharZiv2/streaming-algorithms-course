@@ -97,7 +97,7 @@ class SketchManager:
 
         # --- FEATURE D: DESTINATION PORT ---
         # Get top-k candidate keys for destination ports
-        dst_port_candidates = self.count_dst_port_heavy_hitter.estimate()[:self.k]
+        dst_port_candidates = self.count_dst_port_heavy_hitter.estimate()
         dst_port_counts = [self.dst_port_cms.estimate(port) for port in dst_port_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
