@@ -79,7 +79,7 @@ class SketchManager:
         src_counts = [self.source_ip_cms.estimate(ip) for ip in src_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
-        SrcIP_MaxCount = max(src_counts) if src_counts else 0
+        SrcIP_MaxCount = max(src_counts)
 
         # Feature D2: fraction of mass in top-k candidates
         SrcIP_FractionOfMass = sum(src_counts) / total_volume
