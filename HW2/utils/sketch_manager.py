@@ -124,7 +124,7 @@ class SketchManager:
         dst_f0 = self.dst_ip_f0_est.estimate()
         dst_port_f0 = self.dst_port_f0_est.estimate()
 
-        SrcIP_Concentration = src_f2 / (src_f0 ** 2) if src_f0 > 0 else 0
+        SrcIP_Concentration = src_f2 / (total_volume ** 2)
         DstIP_Concentration = dst_f2 / (dst_f0 ** 2) if dst_f0 > 0 else 0
         DstPort_Concentration = dst_port_f2 / (dst_port_f0 ** 2) if dst_port_f0 > 0 else 0
 
