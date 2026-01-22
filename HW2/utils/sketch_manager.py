@@ -64,8 +64,6 @@ class SketchManager:
     def estimate(self):
         # 1. Total Volume (F1) for normalization
         total_volume = self.num_events_f1.estimate()
-        if total_volume == 0:
-            total_volume = 1  # Avoid division by zero
 
         # F1 squared for burst index normalization
         f1_squared = total_volume ** 2
@@ -76,7 +74,7 @@ class SketchManager:
         src_counts = [self.src_ip_cms.estimate(ip) for ip in src_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
-        SrcIP_MaxCount = max(src_counts) if src_counts else 0
+        SrcIP_MaxCount = max(src_counts)
 
         # Feature D2: fraction of mass in top-k candidates
         SrcIP_FractionOfMass = sum(src_counts) / total_volume
@@ -87,7 +85,7 @@ class SketchManager:
         dst_ip_counts = [self.dst_ip_cms.estimate(ip) for ip in dst_ip_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
-        DstIP_MaxCount = max(dst_ip_counts) if dst_ip_counts else 0
+        DstIP_MaxCount = max(dst_ip_counts)
 
         # Feature D2: fraction of mass in top-k candidates
         DstIP_FractionOfMass = sum(dst_ip_counts) / total_volume
@@ -98,7 +96,7 @@ class SketchManager:
         dst_port_counts = [self.dst_port_cms.estimate(port) for port in dst_port_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
-        DstPort_MaxCount = max(dst_port_counts) if dst_port_counts else 0
+        DstPort_MaxCount = max(dst_port_counts)
 
         # Feature D2: fraction of mass in top-k candidates
         DstPort_FractionOfMass = sum(dst_port_counts) / total_volume
@@ -121,9 +119,9 @@ class SketchManager:
         dst_f0 = self.dst_ip_f0.estimate()
         dst_port_f0 = self.dst_port_f0.estimate()
 
-        SrcIP_Concentration = src_f2 / (src_f0 ** 2) if src_f0 > 0 else 0
-        DstIP_Concentration = dst_f2 / (dst_f0 ** 2) if dst_f0 > 0 else 0
-        DstPort_Concentration = dst_port_f2 / (dst_port_f0 ** 2) if dst_port_f0 > 0 else 0
+        SrcIP_Concentration = src_f2 / (src_f0 ** 2)
+        DstIP_Concentration = dst_f2 / (dst_f0 ** 2)
+        DstPort_Concentration = dst_port_f2 / (dst_port_f0 ** 2)
 
         estimations = {
             # F0 Features (Distinct Elements)
