@@ -16,11 +16,11 @@ class CountMinSketch(Estimator):
         self.hash_functions = [BucketHash(self.width) for _ in range(self.depth)]
         self.table = np.zeros((self.depth, self.width), dtype=int)
 
-    def update(self, feature, count: int = 1):
+    def update(self, feature):
         """Update the sketch with a feature and optional count."""
         for i in range(self.depth):
             hash_value = self.hash_functions[i].digest(feature)
-            self.table[i][hash_value] += count
+            self.table[i][hash_value] += 1
 
     def estimate(self, feature) -> int:
         """Estimate the count for a given feature."""
@@ -33,4 +33,4 @@ class CountMinSketch(Estimator):
         pass
 
     def reset(self):
-        self.table = np.zeros((self.depth, self.width), dtype=int)
+        self.table.fill(0)
