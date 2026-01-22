@@ -18,19 +18,16 @@ class SketchManager:
         self.dst_ip_cms = CountMinSketch(args.cms_width)
         self.dst_ip_heavy_hitter = HeavyHittersSketch()
 
-        self.num_events_f1_est = MorrisEstimator()
-
-        self.attack_f1_estimator = MorrisEstimator()
-        self.count_source_ip_heavy_hitter = HeavyHittersSketch()
-        self.count_dest_ip_heavy_hitter = HeavyHittersSketch()
-        self.count_dst_port_heavy_hitter = HeavyHittersSketch()
-        self.source_ip_cms = CountMinSketch(args.cms_width)
-        self.dest_ip_cms = CountMinSketch(args.cms_width)
+        self.dst_port_f0 = FMEstimator()
+        self.dst_port_f2 = AMSEstimator(args.ams_r)
         self.dst_port_cms = CountMinSketch(args.cms_width)
+        self.dst_port_heavy_hitter = HeavyHittersSketch()
+
+        self.num_events_f1 = MorrisEstimator()
+        self.attack_f1 = MorrisEstimator()
+
         self.k = 5
 
-
-        self.attack_f1_estimator = MorrisEstimator()
 
     def __new__(cls, args: Args):
         if not cls._instance:
@@ -39,25 +36,25 @@ class SketchManager:
     # @func_timer
     def sketch(self, event: pd.DataFrame) -> None:
         """Updates all estimators with the relevant fields"""
-        self.src_ip_f0_est.update(event['srcip'])
-        self.src_ip_f2_est.update(event['srcip'])
+        self.src_ip_f0.update(event['srcip'])
+        self.src_ip_f2.update(event['srcip'])
+        self.src_ip_cms.update(event['srcip'])
+        self.src_ip_heavy_hitter.update(event['srcip'])
 
-        self.dst_ip_f0_est.update(event['dstip'])
-        self.dst_ip_f2_est.update(event['dstip'])
-        self.dst_port_f2_est.update(event['dsport'])
-        self.dst_port_f0_est.update(event['dsport'])
+        self.dst_ip_f0.update(event['dstip'])
+        self.dst_ip_f2.update(event['dstip'])
+        self.dst_ip_cms.update(event['dstip'])
+        self.dst_ip_heavy_hitter.update(event['dstip'])
 
-        self.num_events_f1_est.update()
+        self.dst_port_f0.update(event['dsport'])
+        self.dst_port_f2.update(event['dsport'])
+        self.dst_port_cms.update(event['dsport'])
+        self.dst_port_heavy_hitter.update(event['dsport'])
+
+        self.num_events_f1.update()
 
         if event['Label'] == '1':
-            self.attack_f1_estimator.update()
-
-        self.count_source_ip_heavy_hitter.update(event['srcip'])
-        self.count_dest_ip_heavy_hitter.update(event['dstip'])
-        self.count_dst_port_heavy_hitter.update(event['dsport'])
-        self.source_ip_cms.update(event['srcip'])
-        self.dest_ip_cms.update(event['dstip'])
-        self.dst_port_cms.update(event['dsport'])
+            self.attack_f1.update()
 
 
     def reset(self):
@@ -66,49 +63,51 @@ class SketchManager:
 
     def estimate(self):
         # 1. Total Volume (F1) for normalization
-        total_volume = self.num_events_f1_est.estimate()
+        total_volume = self.num_events_f1.estimate()
+        if total_volume == 0:
+            total_volume = 1  # Avoid division by zero
 
         # F1 squared for burst index normalization
         f1_squared = total_volume ** 2
 
         # --- FEATURE D: SOURCE IP ---
         # Get top-k candidate keys from the candidate list
-        src_candidates = self.count_source_ip_heavy_hitter.estimate()
-        src_counts = [self.source_ip_cms.estimate(ip) for ip in src_candidates]
+        src_candidates = self.src_ip_heavy_hitter.estimate()[:self.k]
+        src_counts = [self.src_ip_cms.estimate(ip) for ip in src_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
-        SrcIP_MaxCount = max(src_counts)
+        SrcIP_MaxCount = max(src_counts) if src_counts else 0
 
         # Feature D2: fraction of mass in top-k candidates
         SrcIP_FractionOfMass = sum(src_counts) / total_volume
 
         # --- FEATURE D: DESTINATION IP ---
         # Get top-k candidate keys for destination IPs
-        dst_ip_candidates = self.count_dest_ip_heavy_hitter.estimate()
-        dst_ip_counts = [self.dest_ip_cms.estimate(ip) for ip in dst_ip_candidates]
+        dst_ip_candidates = self.dst_ip_heavy_hitter.estimate()[:self.k]
+        dst_ip_counts = [self.dst_ip_cms.estimate(ip) for ip in dst_ip_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
-        DstIP_MaxCount = max(dst_ip_counts)
+        DstIP_MaxCount = max(dst_ip_counts) if dst_ip_counts else 0
 
         # Feature D2: fraction of mass in top-k candidates
         DstIP_FractionOfMass = sum(dst_ip_counts) / total_volume
 
         # --- FEATURE D: DESTINATION PORT ---
         # Get top-k candidate keys for destination ports
-        dst_port_candidates = self.count_dst_port_heavy_hitter.estimate()
+        dst_port_candidates = self.dst_port_heavy_hitter.estimate()[:self.k]
         dst_port_counts = [self.dst_port_cms.estimate(port) for port in dst_port_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
-        DstPort_MaxCount = max(dst_port_counts)
+        DstPort_MaxCount = max(dst_port_counts) if dst_port_counts else 0
 
         # Feature D2: fraction of mass in top-k candidates
         DstPort_FractionOfMass = sum(dst_port_counts) / total_volume
 
         # --- FEATURE C: BURST / CONCENTRATION ---
         # F2 estimates for source and destination IPs
-        src_f2 = self.src_ip_f2_est.estimate()
-        dst_f2 = self.dst_ip_f2_est.estimate()
-        dst_port_f2 = self.dst_port_f2_est.estimate()
+        src_f2 = self.src_ip_f2.estimate()
+        dst_f2 = self.dst_ip_f2.estimate()
+        dst_port_f2 = self.dst_port_f2.estimate()
 
         # Burst Index: normalized by F1^2
         # Values closer to 1 indicate a single IP is dominating the traffic (burst)
@@ -118,13 +117,13 @@ class SketchManager:
 
         # Concentration: normalized by F0^2 (distinct elements)
         # Shows if burstiness is caused by a few specific actors
-        src_f0 = self.src_ip_f0_est.estimate()
-        dst_f0 = self.dst_ip_f0_est.estimate()
-        dst_port_f0 = self.dst_port_f0_est.estimate()
+        src_f0 = self.src_ip_f0.estimate()
+        dst_f0 = self.dst_ip_f0.estimate()
+        dst_port_f0 = self.dst_port_f0.estimate()
 
-        SrcIP_Concentration = src_f2 / (src_f0 ** 2)
-        DstIP_Concentration = dst_f2 / (dst_f0 ** 2)
-        DstPort_Concentration = dst_port_f2 / (dst_port_f0 ** 2)
+        SrcIP_Concentration = src_f2 / (src_f0 ** 2) if src_f0 > 0 else 0
+        DstIP_Concentration = dst_f2 / (dst_f0 ** 2) if dst_f0 > 0 else 0
+        DstPort_Concentration = dst_port_f2 / (dst_port_f0 ** 2) if dst_port_f0 > 0 else 0
 
         estimations = {
             # F0 Features (Distinct Elements)
@@ -139,7 +138,7 @@ class SketchManager:
 
             # F1 Features (Total Volume)
             'NumEventsF1': total_volume,
-            'NumAttacksF1': self.attack_f1_estimator.estimate(),
+            'NumAttacksF1': self.attack_f1.estimate(),
 
             # Burst Index Features (F2/F1^2)
             'SrcIP_BurstIndex': SrcIP_BurstIndex,
@@ -163,7 +162,7 @@ class SketchManager:
         }
 
         # Attack detection
-        attack_ratio = self.attack_f1_estimator.estimate() / total_volume
+        attack_ratio = self.attack_f1.estimate() / total_volume
         estimations['Attack'] = int(attack_ratio > 0.06)
 
         return estimations
@@ -184,5 +183,5 @@ class SketchManager:
             self.dst_port_cms,
             self.dst_port_heavy_hitter,
             self.num_events_f1,
-            self.attack_f1_estimator,
+            self.attack_f1,
         ]

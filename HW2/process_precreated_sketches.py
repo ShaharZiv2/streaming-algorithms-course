@@ -20,11 +20,10 @@ def normalize_data(data: pd.DataFrame):
 def main():
     data = pd.read_csv(DATA_PATH)
     normalize_data(data)
-    data = data.groupby('Attack').mean()
+    data_mean = data.groupby('Attack').mean()
     # Train decision tree
     y = data['Attack']
     X = data.drop('Attack', axis=1)
-
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
