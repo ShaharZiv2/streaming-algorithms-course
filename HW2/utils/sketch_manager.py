@@ -67,8 +67,6 @@ class SketchManager:
     def estimate(self):
         # 1. Total Volume (F1) for normalization
         total_volume = self.num_events_f1_est.estimate()
-        if total_volume == 0:
-            total_volume = 1  # Avoid division by zero
 
         # F1 squared for burst index normalization
         f1_squared = total_volume ** 2
