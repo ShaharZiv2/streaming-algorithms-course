@@ -90,7 +90,7 @@ class SketchManager:
         dst_ip_counts = [self.dest_ip_cms.estimate(ip) for ip in dst_ip_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
-        DstIP_MaxCount = max(dst_ip_counts) if dst_ip_counts else 0
+        DstIP_MaxCount = max(dst_ip_counts)
 
         # Feature D2: fraction of mass in top-k candidates
         DstIP_FractionOfMass = sum(dst_ip_counts) / total_volume
