@@ -4,10 +4,17 @@ from abc import ABC, abstractmethod
 import xxhash
 
 
+def get_seed():
+    i = 0
+    while True:
+        yield i
+        i += 1
+
 class Hash(ABC):
+    seed_generator = get_seed()
 
     def __init__(self):
-        self.seed = random.getrandbits(128)
+        self.seed = random.getrandbits(next(self.seed_generator))
 
     def base_digest(self, feature) -> int:
         return xxhash.xxh64(feature.encode('utf-8'), self.seed).intdigest()

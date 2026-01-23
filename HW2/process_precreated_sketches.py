@@ -1,16 +1,20 @@
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import classification_report, accuracy_score
+from matplotlib import pyplot as plt
 
-DATA_PATH = 'datasets/window_estimations.csv'
+
+TRAINING_DATA_PATH = 'datasets/training_window_estimations.csv'
+TESTING_DATA_PATH = 'datasets/testing_window_estimations.csv'
+
 NORMALIZABLE_COLUMNS = ['SrcIPF0',
                         'DstIPF0',
                         'DstPortF0',
                         'SrcIPF2',
                         'DstIPF2',
                         'DstPortF2',
-                        'Attacks_F1',
                         'SrcIP_MaxCount',
                         'DstIP_MaxCount',
                         'DstPort_MaxCount',
@@ -21,10 +25,7 @@ def normalize_data(data: pd.DataFrame):
     data[NORMALIZABLE_COLUMNS] = data[NORMALIZABLE_COLUMNS].div(data['Events_F1'], axis=0)
 
 
-def main():
-    data = pd.read_csv(DATA_PATH)
-    normalize_data(data)
-    data_mean = data.groupby('Attack').mean()
+def train_ml_model(data:pd.DataFrame):
     # Train decision tree
     y = data['Attack']
     X = data.drop('Attack', axis=1)
@@ -42,6 +43,97 @@ def main():
     # Save model (optional)
     import joblib
     joblib.dump(clf, 'models/decision_tree_classifier.pkl')
+
+
+def plot_thresholds(grouped_data: pd.DataFrame):
+    feature_cols = grouped_data.columns
+    fig, axes = plt.subplots(7, 3, figsize=(20, 30))
+
+    for col, ax in zip(feature_cols, axes.flatten()):
+        grouped_data[col].plot(kind='bar', ax=ax, color=['green', 'red'])
+        ax.set_title(f'{col} by Attack Label')
+        ax.set_xlabel('Attack (0 = Normal, 1 = Attack)')
+        ax.set_ylabel(f'Mean {col}')
+        ax.set_xticklabels(['Normal', 'Attack'], rotation=0)
+
+    plt.tight_layout()
+    plt.show()
+
+
+def get_thresholds(grouped_data: pd.DataFrame):
+    grouped_t = grouped_data.T
+    grouped_t['mean'] = grouped_t.mean(axis=1)
+    grouped_t['diff'] = (grouped_t[0] - grouped_t[1]).abs()
+    significant_diffs = grouped_t[grouped_t['diff'] / grouped_t['mean'] > 0.3]
+    significant_diffs['above_is_attack'] = significant_diffs['mean'] > significant_diffs[0]
+    significant_diffs.rename(columns={'mean': 'threshold'}, inplace=True)
+
+    return significant_diffs[['threshold', 'above_is_attack']].T
+
+
+def prepare_data_for_rule_based(data: pd.DataFrame, thresholds: pd.DataFrame):
+    filtered_data = data[thresholds.columns]
+    threshold_values = thresholds.loc['threshold', filtered_data.columns].values
+    above_is_attack = thresholds.loc['above_is_attack', filtered_data.columns].values
+
+    return filtered_data, threshold_values, above_is_attack
+
+
+def rule_based_classify(filtered_data, threshold_values, above_is_attack, minimum_thresholds):
+    pass_from_below = (filtered_data > threshold_values) & above_is_attack
+    pass_from_above = (filtered_data <= threshold_values) & (~above_is_attack)
+    passed = pass_from_below | pass_from_above
+    estimated_attack = passed.sum(axis=1) >= minimum_thresholds
+    return estimated_attack
+
+
+def get_optimal_thresholds_count(data: pd.DataFrame, thresholds: pd.DataFrame, plot: bool = False):
+    filtered_data, threshold_values, above_is_attack = prepare_data_for_rule_based(data, thresholds)
+    correct_labeling = []
+    current_max = 0
+    best_threshold_count = 0
+    for i in range(1, len(thresholds.columns) + 1):
+        classifications = rule_based_classify(filtered_data, threshold_values, above_is_attack, i)
+        correct_labeling_count = (classifications == data['Attack'].astype(bool)).sum()
+        if correct_labeling_count > current_max:
+            current_max = correct_labeling_count
+            best_threshold_count = i
+
+        correct_labeling.append(correct_labeling_count)
+
+    if plot:
+        plt.bar(range(1, len(thresholds.columns) + 1), correct_labeling)
+        plt.title('Correct labeling count by thresholds passed')
+        plt.show()
+
+    return best_threshold_count, current_max
+
+
+def process_threshold_classification(training_data: pd.DataFrame, testing_data: pd.DataFrame, plot: bool = False):
+    training_grouped = training_data.groupby('Attack').mean()
+    if plot:
+        plot_thresholds(training_grouped)
+
+    thresholds = get_thresholds(training_grouped)
+    best_threshold_count, success_count = get_optimal_thresholds_count(training_data, thresholds)
+    print(f'Using our threshold methodology, we successfully classified {success_count / len(training_data) * 100:.3f}% of the training windows')
+    print(f'This was achieved by classifying True if at least {best_threshold_count} were passed')
+    print('We will now classify the testing set according to the training')
+
+    filtered_data, threshold_values, above_is_attack = prepare_data_for_rule_based(testing_data, thresholds)
+    classifications = rule_based_classify(filtered_data, threshold_values, above_is_attack, best_threshold_count)
+    correct_labeling_count = (classifications == testing_data['Attack'].astype(bool)).sum()
+    print(f'For the testing data, we successfully classified {correct_labeling_count / len(testing_data) * 100:.3f}% of the testing windows')
+
+
+def main():
+    training_windows = pd.read_csv(TRAINING_DATA_PATH)
+    testing_windows = pd.read_csv(TESTING_DATA_PATH)
+    normalize_data(training_windows)
+    normalize_data(testing_windows)
+    process_threshold_classification(training_windows, testing_windows)
+    # train_ml_model(data)
+
 
 
 if __name__ == '__main__':

@@ -128,7 +128,6 @@ class SketchManager:
 
             # F1 Features (Total Volume)
             'Events_F1': total_volume,
-            'Attacks_F1': self.attack_f1.estimate(),
 
             # Burst Index Features (F2/F1^2)
             'SrcIP_BurstIndex': SrcIP_BurstIndex,
