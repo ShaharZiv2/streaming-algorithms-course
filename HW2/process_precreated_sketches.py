@@ -4,17 +4,21 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import classification_report, accuracy_score
 
 DATA_PATH = 'datasets/window_estimations.csv'
-NORMALIZABLE_COLUMNS = ['SrcIP_F0',
-                        'SrcIP_F2',
-                        'DstIP_F0',
-                        'DstIP_F2',
+NORMALIZABLE_COLUMNS = ['SrcIPF0',
+                        'DstIPF0',
                         'DstPortF0',
+                        'SrcIPF2',
+                        'DstIPF2',
                         'DstPortF2',
+                        'Attacks_F1',
+                        'SrcIP_MaxCount',
+                        'DstIP_MaxCount',
+                        'DstPort_MaxCount',
                         ]
 
 
 def normalize_data(data: pd.DataFrame):
-    data[NORMALIZABLE_COLUMNS] = data[NORMALIZABLE_COLUMNS].div(data['NumEventsF1'], axis=0)
+    data[NORMALIZABLE_COLUMNS] = data[NORMALIZABLE_COLUMNS].div(data['Events_F1'], axis=0)
 
 
 def main():

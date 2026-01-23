@@ -5,7 +5,6 @@ from schemas.args import Args
 
 
 class SketchManager:
-    _instance = None
 
     def __init__(self, args: Args):
         self.src_ip_f0 = FMEstimator()
@@ -26,13 +25,6 @@ class SketchManager:
         self.num_events_f1 = MorrisEstimator()
         self.attack_f1 = MorrisEstimator()
 
-        self.k = 5
-
-
-    def __new__(cls, args: Args):
-        if not cls._instance:
-            cls._instance = super().__new__(cls)
-        return cls._instance
     # @func_timer
     def sketch(self, event: pd.DataFrame) -> None:
         """Updates all estimators with the relevant fields"""
@@ -70,33 +62,33 @@ class SketchManager:
 
         # --- FEATURE D: SOURCE IP ---
         # Get top-k candidate keys from the candidate list
-        src_candidates = self.src_ip_heavy_hitter.estimate()[:self.k]
+        src_candidates = self.src_ip_heavy_hitter.estimate()
         src_counts = [self.src_ip_cms.estimate(ip) for ip in src_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
-        SrcIP_MaxCount = max(src_counts)
+        SrcIP_MaxCount = max(src_counts) if src_counts else 0
 
         # Feature D2: fraction of mass in top-k candidates
         SrcIP_FractionOfMass = sum(src_counts) / total_volume
 
         # --- FEATURE D: DESTINATION IP ---
         # Get top-k candidate keys for destination IPs
-        dst_ip_candidates = self.dst_ip_heavy_hitter.estimate()[:self.k]
+        dst_ip_candidates = self.dst_ip_heavy_hitter.estimate()
         dst_ip_counts = [self.dst_ip_cms.estimate(ip) for ip in dst_ip_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
-        DstIP_MaxCount = max(dst_ip_counts)
+        DstIP_MaxCount = max(dst_ip_counts) if dst_ip_counts else 0
 
         # Feature D2: fraction of mass in top-k candidates
         DstIP_FractionOfMass = sum(dst_ip_counts) / total_volume
 
         # --- FEATURE D: DESTINATION PORT ---
         # Get top-k candidate keys for destination ports
-        dst_port_candidates = self.dst_port_heavy_hitter.estimate()[:self.k]
+        dst_port_candidates = self.dst_port_heavy_hitter.estimate()
         dst_port_counts = [self.dst_port_cms.estimate(port) for port in dst_port_candidates]
 
         # Feature D1: estimated maximum count among candidate keys
-        DstPort_MaxCount = max(dst_port_counts)
+        DstPort_MaxCount = max(dst_port_counts) if dst_port_counts else 0
 
         # Feature D2: fraction of mass in top-k candidates
         DstPort_FractionOfMass = sum(dst_port_counts) / total_volume
@@ -125,18 +117,18 @@ class SketchManager:
 
         estimations = {
             # F0 Features (Distinct Elements)
-            'SrcIP_F0': src_f0,
-            'DstIP_F0': dst_f0,
+            'SrcIPF0': src_f0,
+            'DstIPF0': dst_f0,
             'DstPortF0': dst_port_f0,
 
             # F2 Features (Second Frequency Moment)
-            'SrcIP_F2': src_f2,
-            'DstIP_F2': dst_f2,
-            'DstPort_F2': dst_port_f2,
+            'SrcIPF2': src_f2,
+            'DstIPF2': dst_f2,
+            'DstPortF2': dst_port_f2,
 
             # F1 Features (Total Volume)
-            'NumEventsF1': total_volume,
-            'NumAttacksF1': self.attack_f1.estimate(),
+            'Events_F1': total_volume,
+            'Attacks_F1': self.attack_f1.estimate(),
 
             # Burst Index Features (F2/F1^2)
             'SrcIP_BurstIndex': SrcIP_BurstIndex,
