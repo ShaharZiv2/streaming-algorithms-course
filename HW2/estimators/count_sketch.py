@@ -39,4 +39,4 @@ class CountSketch(Estimator):
         pass
 
     def reset(self):
-        self.table = np.zeros((self.rows, self.buckets), dtype=int)
+        self.table.fill(0)

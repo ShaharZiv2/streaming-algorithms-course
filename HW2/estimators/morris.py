@@ -24,5 +24,5 @@ class MorrisEstimator(Estimator):
         pass
 
     def reset(self):
-        self.counters = np.zeros(self.num_counters, dtype=int)
+        self.counters.fill(0)
 
