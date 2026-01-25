@@ -1,3 +1,5 @@
+import os.path
+
 import pandas as pd
 
 from schemas.args import Args
@@ -25,13 +27,38 @@ def process_data_stream(args: Args, source_file: SourceFiles):
     return pd.DataFrame(window_estimations)
 
 
+def run_all(args: Args):
+    for cms_width in [2048, 8192]:
+            for ams_r in [16, 32, 64]:
+                for i in range(25):
+                    print(f'Running config: cms_width {cms_width} ams_r {ams_r} iteration {i + 1}')
+                    training_file_name = f'datasets/estimations/trng_{cms_width}_{ams_r}_{i}.csv'
+                    testing_file_name = f'datasets/estimations/tstng_{cms_width}_{ams_r}_{i}.csv'
+                    if os.path.exists(training_file_name):
+                        continue
+                    args = Args(
+                        window_size=args.window_size,
+                        cms_width=cms_width,
+                        ams_r=ams_r,
+                    )
+
+                    training_windows_estimations = process_data_stream(args, SourceFiles.TRAINING_LIGHT)
+                    testing_windows_estimations = process_data_stream(args, SourceFiles.TESTING_LIGHT)
+
+                    training_windows_estimations.to_csv(training_file_name, index=False)
+                    testing_windows_estimations.to_csv(testing_file_name, index=False)
+
 def main():
     args: Args = parse_arguments()
-    training_windows_estimations = process_data_stream(args, SourceFiles.TRAINING)
-    testing_windows_estimations = process_data_stream(args, SourceFiles.TESTING)
+    if args.run_all:
+        run_all(args)
 
-    training_windows_estimations.to_csv('datasets/training_window_estimations.csv', index=False)
-    testing_windows_estimations.to_csv('datasets/testing_window_estimations.csv', index=False)
+    else:
+        training_windows_estimations = process_data_stream(args, SourceFiles.TRAINING)
+        testing_windows_estimations = process_data_stream(args, SourceFiles.TESTING)
+
+        training_windows_estimations.to_csv('datasets/training_window_estimations.csv', index=False)
+        testing_windows_estimations.to_csv('datasets/testing_window_estimations.csv', index=False)
 
 if __name__ == '__main__':
     main()

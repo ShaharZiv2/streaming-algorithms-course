@@ -6,6 +6,9 @@ class SourceFiles(StrEnum):
     TRAINING = 'datasets/raw_data/training.csv'
     TESTING = 'datasets/raw_data/testing.csv'
 
+    TRAINING_LIGHT = 'datasets/light/training.csv'
+    TESTING_LIGHT = 'datasets/light/testing.csv'
+
 
 class Stream:
 

@@ -10,6 +10,7 @@ def parse_arguments() -> Args:
     parser.add_argument('--cs_rows', type=int, default=5, choices=[5, 7, 9])
     parser.add_argument('--cs_buckets', type=int, default=2048, choices=[2048, 8192])
     parser.add_argument('--ams_r', type=int, default=16, choices=[16, 64, 256])
+    parser.add_argument('--run_all', action='store_true')
     
     args = parser.parse_args()
     return Args(
@@ -17,5 +18,6 @@ def parse_arguments() -> Args:
         cms_width=args.cms_width,
         cs_rows=args.cs_rows,
         cs_buckets=args.cs_buckets,
-        ams_r=args.ams_r
+        ams_r=args.ams_r,
+        run_all=args.run_all,
     )
