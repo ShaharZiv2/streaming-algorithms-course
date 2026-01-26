@@ -13,6 +13,8 @@ pydantic = "*"
 xxhash = "*"
 pytest = "*"
 matplotlib = "*"
+seaborn = "*"
+joblib = "*"
 
 
 [build-system]

@@ -156,6 +156,18 @@ class SketchManager:
 
         return estimations
 
+    def calculate_total_memory(self) -> int:
+        """
+        Calculate the total memory used by all estimators in bytes.
+
+        Returns:
+            int: Total memory in bytes
+        """
+        total_memory = 0
+        for estimator in self.estimators:
+            total_memory += estimator.report()
+        return total_memory
+
     @property
     def estimators(self):
         return [
