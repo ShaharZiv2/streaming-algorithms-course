@@ -94,7 +94,7 @@ def evaluate_all_configurations():
     results = []
 
     cms_widths = [2048, 8192]
-    ams_rs = [16, 32, 64]
+    ams_rs = [16, 64, 256]
 
     for cms_width in cms_widths:
         for ams_r in ams_rs:
@@ -400,8 +400,8 @@ def generate_summary_report(results_df, save_path='datasets/evaluations'):
             f.write(f"  Recall:    {row[('recall', 'mean')]:.4f} ± {row[('recall', 'std')]:.4f}\n")
             f.write(f"  F1 Score:  {row[('f1', 'mean')]:.4f} ± {row[('f1', 'std')]:.4f}\n")
             f.write(f"  Runtime:   {row[('runtime', 'mean')]:.4f} ± {row[('runtime', 'std')]:.4f} seconds\n")
-            if 'memory_mb' in row.index:
-                memory_val = row['memory_mb']
+            if 'memory_mb' in grouped.columns:
+                memory_val = grouped.loc[(cms_width, ams_r), 'memory_mb']
                 f.write(f"  Memory:    {memory_val:.2f} MB\n")
             f.write("\n")
 

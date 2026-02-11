@@ -39,7 +39,7 @@ def run_all(args: Args):
     memory_tracking_file = 'datasets/estimations/memory_tracking.csv'
 
     for cms_width in [2048, 8192]:
-            for ams_r in [16, 32, 64]:
+            for ams_r in [16, 64, 256]:
                 for i in range(25):
                     print(f'Running config: cms_width {cms_width} ams_r {ams_r} iteration {i + 1}')
                     training_file_name = f'datasets/estimations/trng_{cms_width}_{ams_r}_{i}.csv'
