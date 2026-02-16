@@ -23,7 +23,9 @@ class AMSEstimator(Estimator):
 
     def report(self):
         # I don't really know what to put here....
-        pass
+        matrix_memory = self.matrix.nbytes
+        hash_array_memory = self.hash_matrix.__sizeof__()
+        return matrix_memory + hash_array_memory
 
     def reset(self):
         self.matrix.fill(0)

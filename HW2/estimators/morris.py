@@ -21,7 +21,8 @@ class MorrisEstimator(Estimator):
         return int(np.median(group_means))
 
     def report(self):
-        pass
+        counters_memory = self.counters.nbytes
+        return counters_memory
 
     def reset(self):
         self.counters.fill(0)

@@ -30,7 +30,9 @@ class CountMinSketch(Estimator):
 
     def report(self):
         """Report sketch statistics."""
-        pass
+        table_memory = self.table.nbytes
+        hash_array_memory = self.hash_functions.__sizeof__()
+        return table_memory + hash_array_memory
 
     def reset(self):
         self.table.fill(0)

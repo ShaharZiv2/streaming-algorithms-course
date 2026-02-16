@@ -24,7 +24,7 @@ class HeavyHittersSketch(Estimator):
 
     def report(self):
         """Report sketch statistics."""
-        pass
+        return self.buckets.__sizeof__()
 
     def reset(self):
         self.buckets = {}

@@ -25,7 +25,9 @@ class FMEstimator(Estimator):
         return int(np.median(group_estimates))
 
     def report(self):
-        pass
+        hash_array_memory = self.hashes.__sizeof__()
+        estimators_memory = self.estimators.nbytes
+        return hash_array_memory + estimators_memory
 
     def reset(self):
         self.estimators.fill(1)
