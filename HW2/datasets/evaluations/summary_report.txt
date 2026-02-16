@@ -10,7 +10,7 @@ Configuration: CMS Width = 2048, AMS r = 16
   Precision: 0.6878 ± 0.0603
   Recall:    0.6864 ± 0.1417
   F1 Score:  0.6774 ± 0.0733
-  Runtime:   0.0033 ± 0.0003 seconds
+  Runtime:   0.0039 ± 0.0004 seconds
   Memory:    0.19 MB
 
 Configuration: CMS Width = 2048, AMS r = 64
@@ -18,7 +18,7 @@ Configuration: CMS Width = 2048, AMS r = 64
   Precision: 0.7008 ± 0.0587
   Recall:    0.6622 ± 0.1320
   F1 Score:  0.6745 ± 0.0848
-  Runtime:   0.0031 ± 0.0003 seconds
+  Runtime:   0.0038 ± 0.0003 seconds
   Memory:    42.70 MB
 
 Configuration: CMS Width = 2048, AMS r = 256
@@ -26,7 +26,7 @@ Configuration: CMS Width = 2048, AMS r = 256
   Precision: 0.7303 ± 0.0602
   Recall:    0.6731 ± 0.0994
   F1 Score:  0.6968 ± 0.0678
-  Runtime:   0.0030 ± 0.0002 seconds
+  Runtime:   0.0036 ± 0.0003 seconds
   Memory:    43.71 MB
 
 Configuration: CMS Width = 8192, AMS r = 16
@@ -34,7 +34,7 @@ Configuration: CMS Width = 8192, AMS r = 16
   Precision: 0.6685 ± 0.0648
   Recall:    0.6968 ± 0.1591
   F1 Score:  0.6726 ± 0.0976
-  Runtime:   0.0031 ± 0.0002 seconds
+  Runtime:   0.0037 ± 0.0003 seconds
   Memory:    166.19 MB
 
 Configuration: CMS Width = 8192, AMS r = 64
@@ -42,7 +42,7 @@ Configuration: CMS Width = 8192, AMS r = 64
   Precision: 0.7040 ± 0.0582
   Recall:    0.6613 ± 0.1134
   F1 Score:  0.6761 ± 0.0669
-  Runtime:   0.0031 ± 0.0002 seconds
+  Runtime:   0.0037 ± 0.0003 seconds
   Memory:    166.45 MB
 
 Configuration: CMS Width = 8192, AMS r = 256
@@ -50,7 +50,7 @@ Configuration: CMS Width = 8192, AMS r = 256
   Precision: 0.7122 ± 0.0625
   Recall:    0.7099 ± 0.0858
   F1 Score:  0.7090 ± 0.0660
-  Runtime:   0.0030 ± 0.0002 seconds
+  Runtime:   0.0037 ± 0.0002 seconds
   Memory:    167.46 MB
 
 --------------------------------------------------------------------------------
