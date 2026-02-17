@@ -3,6 +3,7 @@ from typing import Dict
 from estimators import FMEstimator, AMSEstimator, MorrisEstimator, CountMinSketch, HeavyHittersSketch
 from schemas.args import Args
 from utils.sketch_manager_base import SketchManagerBase
+from utils.time_utils import func_timer
 
 
 class SketchManager(SketchManagerBase):
@@ -26,7 +27,6 @@ class SketchManager(SketchManagerBase):
         self.num_events_f1 = MorrisEstimator()
         self.attack_f1 = MorrisEstimator()
 
-    # @func_timer
     def sketch(self, event: Dict[str, str]) -> None:
         """Updates all estimators with the relevant fields"""
         self.src_ip_f0.update(event['srcip'])
