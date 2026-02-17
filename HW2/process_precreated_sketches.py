@@ -128,8 +128,30 @@ def process_threshold_classification(training_data: pd.DataFrame, testing_data: 
 
 
 def plot_accuracies(sketch_windows: pd.DataFrame, baseline_windows: pd.DataFrame):
-    ratio_df = sketch_windows / baseline_windows
-    pass
+    ratio_df = (sketch_windows / baseline_windows).drop(columns='Attack')
+    feature_cols = ratio_df.columns
+
+    num_cols = 3
+    num_rows = (len(feature_cols) + num_cols - 1) // num_cols
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(15, 4 * num_rows))
+
+    for col, ax in zip(feature_cols, axes.flatten()):
+        print('Plotting accuracy for', col)
+        ax.hist(ratio_df[col].dropna(), bins=50, edgecolor='black')
+        ax.set_title(f'{col} (Sketch / Baseline)')
+        ax.set_xlabel('Ratio')
+        ax.set_ylabel('Frequency')
+        ax.axvline(x=1.0, color='r', linestyle='--', label='Perfect accuracy')
+        ax.legend()
+
+    # Hide unused subplots
+    print('Removing unused subplots')
+    for ax in axes.flatten()[len(feature_cols):]:
+        ax.set_visible(False)
+
+    print('Showing')
+    plt.tight_layout()
+    plt.show()
 
 
 def main():

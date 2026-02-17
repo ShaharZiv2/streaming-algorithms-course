@@ -1,4 +1,3 @@
-import random
 from abc import ABC, abstractmethod
 
 import xxhash
@@ -14,10 +13,10 @@ class Hash(ABC):
     seed_generator = get_seed()
 
     def __init__(self):
-        self.seed = random.getrandbits(next(self.seed_generator))
+        self.seed = next(self.seed_generator)
 
     def base_digest(self, feature) -> int:
-        return xxhash.xxh64(feature.encode('utf-8'), self.seed).intdigest()
+        return xxhash.xxh64(feature.encode('utf-8'), seed=self.seed).intdigest()
 
 
     @abstractmethod
