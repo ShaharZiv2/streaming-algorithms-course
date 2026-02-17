@@ -1,10 +1,11 @@
-import pandas as pd
+from typing import Dict
 
 from estimators import FMEstimator, AMSEstimator, MorrisEstimator, CountMinSketch, HeavyHittersSketch
 from schemas.args import Args
+from utils.sketch_manager_base import SketchManagerBase
 
 
-class SketchManager:
+class SketchManager(SketchManagerBase):
 
     def __init__(self, args: Args):
         self.src_ip_f0 = FMEstimator()
@@ -26,7 +27,7 @@ class SketchManager:
         self.attack_f1 = MorrisEstimator()
 
     # @func_timer
-    def sketch(self, event: pd.DataFrame) -> None:
+    def sketch(self, event: Dict[str, str]) -> None:
         """Updates all estimators with the relevant fields"""
         self.src_ip_f0.update(event['srcip'])
         self.src_ip_f2.update(event['srcip'])

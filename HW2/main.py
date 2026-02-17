@@ -4,6 +4,7 @@ import pandas as pd
 
 from schemas.args import Args
 from utils.arg_utils import parse_arguments
+from utils.baseline_manager import BaselineManager
 from utils.sketch_manager import SketchManager
 from utils.stream import Stream, SourceFiles
 from utils.time_utils import func_timer
@@ -11,7 +12,7 @@ from utils.time_utils import func_timer
 
 @func_timer
 def process_data_stream(args: Args, source_file: SourceFiles):
-    sketch_manager = SketchManager(args)
+    sketch_manager = SketchManager(args) if args.mode == 'sketch' else BaselineManager()
     training_stream = Stream(source_file, args.window_size)
 
     window_estimations = []
@@ -50,6 +51,7 @@ def run_all(args: Args):
                         window_size=args.window_size,
                         cms_width=cms_width,
                         ams_r=ams_r,
+                        mode=args.mode,
                     )
 
                     training_windows_estimations, training_total_memory = process_data_stream(args, SourceFiles.TRAINING_LIGHT)
@@ -81,24 +83,28 @@ def main():
     else:
         training_windows_estimations, training_total_memory = process_data_stream(args, SourceFiles.TRAINING)
         testing_windows_estimations, testing_total_memory = process_data_stream(args, SourceFiles.TESTING)
+        if args.mode == 'sketch':
+            training_windows_estimations.to_csv('datasets/full_run/training_window_estimations.csv', index=False)
+            testing_windows_estimations.to_csv('datasets/full_run/testing_window_estimations.csv', index=False)
 
-        training_windows_estimations.to_csv('datasets/training_window_estimations.csv', index=False)
-        testing_windows_estimations.to_csv('datasets/testing_window_estimations.csv', index=False)
+            # Save memory tracking for single run
+            memory_data = pd.DataFrame([{
+                'cms_width': args.cms_width,
+                'ams_r': args.ams_r,
+                'window_size': args.window_size,
+                'training_total_memory_bytes': training_total_memory,
+                'testing_total_memory_bytes': testing_total_memory,
+                'training_total_memory_mb': training_total_memory / (1024**2),
+                'testing_total_memory_mb': testing_total_memory / (1024**2),
+            }])
+            memory_data.to_csv('datasets/memory_tracking_single_run.csv', index=False)
+            print(f"\nMemory Usage Summary:")
+            print(f"  Training: {training_total_memory:,} bytes ({training_total_memory / (1024**2):.2f} MB)")
+            print(f"  Testing: {testing_total_memory:,} bytes ({testing_total_memory / (1024**2):.2f} MB)")
 
-        # Save memory tracking for single run
-        memory_data = pd.DataFrame([{
-            'cms_width': args.cms_width,
-            'ams_r': args.ams_r,
-            'window_size': args.window_size,
-            'training_total_memory_bytes': training_total_memory,
-            'testing_total_memory_bytes': testing_total_memory,
-            'training_total_memory_mb': training_total_memory / (1024**2),
-            'testing_total_memory_mb': testing_total_memory / (1024**2),
-        }])
-        memory_data.to_csv('datasets/memory_tracking_single_run.csv', index=False)
-        print(f"\nMemory Usage Summary:")
-        print(f"  Training: {training_total_memory:,} bytes ({training_total_memory / (1024**2):.2f} MB)")
-        print(f"  Testing: {testing_total_memory:,} bytes ({testing_total_memory / (1024**2):.2f} MB)")
+        else:
+            training_windows_estimations.to_csv('datasets/full_run/baseline_training_window_estimations.csv', index=False)
+            testing_windows_estimations.to_csv('datasets/full_run/baseline_testing_window_estimations.csv', index=False)
 
 if __name__ == '__main__':
     main()

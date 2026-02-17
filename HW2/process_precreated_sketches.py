@@ -6,8 +6,9 @@ from sklearn.metrics import classification_report, accuracy_score
 from matplotlib import pyplot as plt
 
 
-TRAINING_DATA_PATH = 'datasets/training_window_estimations.csv'
-TESTING_DATA_PATH = 'datasets/testing_window_estimations.csv'
+TRAINING_DATA_PATH = 'datasets/full_run/training_window_estimations.csv'
+BASELINE_DATA_PATH = 'datasets/full_run/baseline_training_window_estimations.csv'
+TESTING_DATA_PATH = 'datasets/full_run/testing_window_estimations.csv'
 
 NORMALIZABLE_COLUMNS = ['SrcIPF0',
                         'DstIPF0',
@@ -87,7 +88,7 @@ def rule_based_classify(filtered_data, threshold_values, above_is_attack, minimu
     return estimated_attack
 
 
-def get_optimal_thresholds_count(data: pd.DataFrame, thresholds: pd.DataFrame, plot: bool = False):
+def get_optimal_thresholds_count(data: pd.DataFrame, thresholds: pd.DataFrame, plot: bool = True):
     filtered_data, threshold_values, above_is_attack = prepare_data_for_rule_based(data, thresholds)
     correct_labeling = []
     current_max = 0
@@ -109,7 +110,7 @@ def get_optimal_thresholds_count(data: pd.DataFrame, thresholds: pd.DataFrame, p
     return best_threshold_count, current_max
 
 
-def process_threshold_classification(training_data: pd.DataFrame, testing_data: pd.DataFrame, plot: bool = False):
+def process_threshold_classification(training_data: pd.DataFrame, testing_data: pd.DataFrame, plot: bool = True):
     training_grouped = training_data.groupby('Attack').mean()
     if plot:
         plot_thresholds(training_grouped)
@@ -126,9 +127,16 @@ def process_threshold_classification(training_data: pd.DataFrame, testing_data: 
     print(f'For the testing data, we successfully classified {correct_labeling_count / len(testing_data) * 100:.3f}% of the testing windows')
 
 
+def plot_accuracies(sketch_windows: pd.DataFrame, baseline_windows: pd.DataFrame):
+    ratio_df = sketch_windows / baseline_windows
+    pass
+
+
 def main():
     training_windows = pd.read_csv(TRAINING_DATA_PATH)
     testing_windows = pd.read_csv(TESTING_DATA_PATH)
+    baseline_training_window = pd.read_csv(BASELINE_DATA_PATH)
+    plot_accuracies(training_windows, baseline_training_window)
     normalize_data(training_windows)
     normalize_data(testing_windows)
     process_threshold_classification(training_windows, testing_windows)

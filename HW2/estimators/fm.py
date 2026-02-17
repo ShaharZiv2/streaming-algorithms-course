@@ -17,11 +17,9 @@ class FMEstimator(Estimator):
         self.estimators = np.minimum(self.estimators, hash_values)
 
     def estimate(self) -> int:
-        # Reshape into 8 groups of 8 estimators for median-of-means
         groups = self.estimators.reshape(self.num_groups, self.num_groups)
-        # Calculate mean estimate for each group
-        group_estimates = np.mean((1 / groups) - 1, axis=1)
-        # Return median of group estimates
+        group_sums = np.sum(groups, axis=1)
+        group_estimates = (self.num_groups / group_sums) - 1
         return int(np.median(group_estimates))
 
     def report(self):

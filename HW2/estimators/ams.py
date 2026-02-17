@@ -22,7 +22,6 @@ class AMSEstimator(Estimator):
         return np.median(squared_estimators.mean(axis=1))
 
     def report(self):
-        # I don't really know what to put here....
         matrix_memory = self.matrix.nbytes
         hash_array_memory = self.hash_matrix.__sizeof__()
         return matrix_memory + hash_array_memory

@@ -11,6 +11,7 @@ def parse_arguments() -> Args:
     parser.add_argument('--cs_buckets', type=int, default=2048, choices=[2048, 8192])
     parser.add_argument('--ams_r', type=int, default=16, choices=[16, 64, 256])
     parser.add_argument('--run_all', action='store_true')
+    parser.add_argument('--mode', default='sketch', choices=['sketch', 'baseline'])
     
     args = parser.parse_args()
     return Args(
@@ -20,4 +21,5 @@ def parse_arguments() -> Args:
         cs_buckets=args.cs_buckets,
         ams_r=args.ams_r,
         run_all=args.run_all,
+        mode=args.mode,
     )
