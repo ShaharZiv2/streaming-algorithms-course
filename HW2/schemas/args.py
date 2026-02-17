@@ -10,3 +10,4 @@ class Args(BaseModel):
     cs_buckets: Optional[Literal[2048, 8192]] = None
     ams_r: Literal[16, 64, 256]
     run_all: Literal[True, False] = False
+    mode: Literal['sketch', 'baseline']
