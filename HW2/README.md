@@ -59,3 +59,5 @@ python process_precreated_sketches.py
 
 See [EVALUATION_README.md](EVALUATION_README.md) for detailed documentation on the evaluation pipeline.
 
+## Reports file
+Findings report.docx
