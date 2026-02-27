@@ -7,8 +7,8 @@ from pathlib import Path
 
 import requests
 
-from preparation_utils.constants import COLLECTION_URL, COLLECTION_TSV, COLLECTION_JSONL, QUERIES_TSV, QUERIES_JSONL, \
-    QRELS_TSV, QRELS_JSONL, QUERIES_URL, QRELS_URL
+from logic.constants import COLLECTION_URL, COLLECTION_TSV, QUERIES_TSV, QUERIES_URL, QRELS_TSV, QRELS_URL, \
+    COLLECTION_JSONL, QUERIES_JSONL, QRELS_JSONL
 
 FIVE_MB = 5 * 1024 * 1024
 
@@ -37,7 +37,7 @@ def download_data(url: str, destination: str, skip_exists):
         Path(tmp_path).unlink(missing_ok=True)
 
 
-def convert_tsv_to_jsonl(input_tsv_path, output_jsonl_path, skip_exists):
+def convert_tsv_to_jsonl(input_tsv_path, output_jsonl_path, skip_exists, max_line=500_000):
     """Convert a two-column TSV (key, data) to JSONL in datasets/json_data."""
     if skip_exists and Path(output_jsonl_path).exists():
         print(f'Skip converting {input_tsv_path}, the destination already exists.')
@@ -51,6 +51,8 @@ def convert_tsv_to_jsonl(input_tsv_path, output_jsonl_path, skip_exists):
             key = parts[0]
             data = parts[1]
             jsonl_file.write(json.dumps({"key": key, "data": data}) + "\n")
+            if i >= max_line:
+                return
 
 
 def prepare_data(download=False, skip_exists=True):

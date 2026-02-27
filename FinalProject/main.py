@@ -1,4 +1,8 @@
-from preparation_utils.raw_data_utils import prepare_data
+from retrievers.sketch_retriever import SketchRetriever
+
+
+def main():
+    sketch_retriever = SketchRetriever()
 
 if __name__ == '__main__':
-    prepare_data(download=True)
+    main()
