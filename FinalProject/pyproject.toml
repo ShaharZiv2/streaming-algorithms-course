@@ -15,6 +15,7 @@ pytest = "*"
 matplotlib = "*"
 seaborn = "*"
 joblib = "*"
+datasets = "*"
 
 
 [build-system]

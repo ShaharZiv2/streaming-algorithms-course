@@ -207,4 +207,4 @@ marimo/_lsp/
 __marimo__/
 
 # Data
-datasets/MS_MACRO_raw.tsv
+datasets/
