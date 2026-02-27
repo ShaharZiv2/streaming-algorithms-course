@@ -1,0 +1,31 @@
+import numpy as np
+from .estimator import Estimator
+from utils.hash_utils import NormalizedHash
+import math
+
+class FMEstimator(Estimator):
+    def __init__(self, r: int = 64):
+        self.num_estimators = r
+        self.num_groups = math.isqrt(r)
+        self.estimators = np.ones(r, dtype=float)
+        self.hashes = [NormalizedHash() for _ in range(r)]
+
+    def update(self, feature):
+        hash_values = np.vectorize(lambda h: h.digest(feature))(self.hashes)
+
+        # If h(a) < X then X = h(a) - vectorized minimum operation
+        self.estimators = np.minimum(self.estimators, hash_values)
+
+    def estimate(self) -> int:
+        groups = self.estimators.reshape(self.num_groups, self.num_groups)
+        group_sums = np.sum(groups, axis=1)
+        group_estimates = (self.num_groups / group_sums) - 1
+        return int(np.median(group_estimates))
+
+    def report(self):
+        hash_array_memory = self.hashes.__sizeof__()
+        estimators_memory = self.estimators.nbytes
+        return hash_array_memory + estimators_memory
+
+    def reset(self):
+        self.estimators.fill(1)

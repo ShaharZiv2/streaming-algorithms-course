@@ -9,6 +9,12 @@ readme = "README.md"
 python = "^3.13"
 pandas = "*"
 scikit-learn = "*"
+pydantic = "*"
+xxhash = "*"
+pytest = "*"
+matplotlib = "*"
+seaborn = "*"
+joblib = "*"
 
 
 [build-system]

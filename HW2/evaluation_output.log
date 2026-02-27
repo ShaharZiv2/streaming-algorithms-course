@@ -1,0 +1,321 @@
+Starting evaluation of all configurations...
+================================================================================
+Evaluating: cms_width=2048, ams_r=16, iteration=0
+  Accuracy: 0.6682, F1: 0.6784, Recall: 0.5923, Runtime: 0.0052s
+Evaluating: cms_width=2048, ams_r=16, iteration=1
+  Accuracy: 0.6273, F1: 0.7230, Recall: 0.8231, Runtime: 0.0039s
+Evaluating: cms_width=2048, ams_r=16, iteration=2
+  Accuracy: 0.5773, F1: 0.5939, Recall: 0.5152, Runtime: 0.0035s
+Evaluating: cms_width=2048, ams_r=16, iteration=3
+  Accuracy: 0.5818, F1: 0.5929, Recall: 0.5076, Runtime: 0.0043s
+Evaluating: cms_width=2048, ams_r=16, iteration=4
+  Accuracy: 0.6909, F1: 0.7671, Recall: 0.8421, Runtime: 0.0035s
+Evaluating: cms_width=2048, ams_r=16, iteration=5
+  Accuracy: 0.5818, F1: 0.6738, Recall: 0.7197, Runtime: 0.0036s
+Evaluating: cms_width=2048, ams_r=16, iteration=6
+  Accuracy: 0.6136, F1: 0.6083, Recall: 0.5000, Runtime: 0.0035s
+Evaluating: cms_width=2048, ams_r=16, iteration=7
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=8
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=9
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=10
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=11
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=12
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=13
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=14
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=15
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=16
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=17
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=18
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=19
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=20
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=21
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=22
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=23
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=16, iteration=24
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=0
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=1
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=2
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=3
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=4
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=5
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=6
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=7
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=8
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=9
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=10
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=11
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=12
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=13
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=14
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=15
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=16
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=17
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=18
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=19
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=20
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=21
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=22
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=23
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=32, iteration=24
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=0
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=1
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=2
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=3
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=4
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=5
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=6
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=7
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=8
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=9
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=10
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=11
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=12
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=13
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=14
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=15
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=16
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=17
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=18
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=19
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=20
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=21
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=22
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=23
+  Skipping - files not found
+Evaluating: cms_width=2048, ams_r=64, iteration=24
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=0
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=1
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=2
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=3
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=4
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=5
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=6
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=7
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=8
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=9
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=10
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=11
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=12
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=13
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=14
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=15
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=16
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=17
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=18
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=19
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=20
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=21
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=22
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=23
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=16, iteration=24
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=0
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=1
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=2
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=3
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=4
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=5
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=6
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=7
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=8
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=9
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=10
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=11
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=12
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=13
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=14
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=15
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=16
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=17
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=18
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=19
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=20
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=21
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=22
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=23
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=32, iteration=24
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=0
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=1
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=2
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=3
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=4
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=5
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=6
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=7
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=8
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=9
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=10
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=11
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=12
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=13
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=14
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=15
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=16
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=17
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=18
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=19
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=20
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=21
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=22
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=23
+  Skipping - files not found
+Evaluating: cms_width=8192, ams_r=64, iteration=24
+  Skipping - files not found
+
+Processed 7 configurations
+Warning: Memory tracking file not found at datasets/estimations/memory_tracking.csv
+
+Saved detailed results to datasets/evaluations/evaluation_results.csv
+
+Generating visualizations...
+Saved confusion matrices to datasets/evaluations/confusion_matrices.png
+Saved metrics comparison to datasets/evaluations/metrics_comparison.png
+Warning: Memory data not available, skipping F1 vs Memory plot
+Warning: Memory data not available, skipping Recall vs Memory plot
+Warning: Memory data not available, skipping Runtime vs Memory plot
+
+Generating summary report...
+Saved summary report to datasets/evaluations/summary_report.txt
+
+================================================================================
+Evaluation complete!
+All results saved to datasets/evaluations/

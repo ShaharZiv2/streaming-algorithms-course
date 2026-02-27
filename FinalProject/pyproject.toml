@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "final_project"
+version = "0.1.0"
+description = ""
+authors = ["shahar.ziv <shahar.ziv@cyberark.com>", "tamar.azoulay <Tamar.azoulay11@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+pandas = "*"
+scikit-learn = "*"
+pydantic = "*"
+xxhash = "*"
+pytest = "*"
+matplotlib = "*"
+seaborn = "*"
+joblib = "*"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
