@@ -9,7 +9,7 @@ class BaseRetriever(ABC):
         self.corpus = self.build_corpus()
 
     @abstractmethod
-    def build_corpus(self, num_initial_documents: int = 10000):
+    def build_corpus(self):
         """Builds the initial corpus for retrieval upon a query"""
 
     @abstractmethod
