@@ -24,8 +24,9 @@ from retrievers.base_retriever import BaseRetriever
 class ClassicRetriever(BaseRetriever):
     """Brute-force TF-IDF retriever – O(n) cosine similarity search."""
 
-    def __init__(self, top_k: int = 10):
+    def __init__(self, top_k: int = 10, num_initial_documents: int = 10_000):
         self.top_k = top_k
+        self.num_initial_documents = num_initial_documents
 
         # populated by build_corpus()
         self.doc_ids: list[str] = []
@@ -33,27 +34,28 @@ class ClassicRetriever(BaseRetriever):
         self.vectorizer: TfidfVectorizer | None = None
         self.doc_matrix = None          # sparse (n_docs × vocab) TF-IDF matrix
 
-        # BaseRetriever.__init__ calls self.build_corpus()
-        super().__init__()
+        # BaseRetriever.__init__ calls self.build_corpus() unless lazy=True
+        super().__init__(lazy=(self.num_initial_documents == 0))
 
     # ------------------------------------------------------------------
     # BaseRetriever interface
     # ------------------------------------------------------------------
 
-    def build_corpus(self, num_initial_documents: int = 10_000):
+    def build_corpus(self, num_initial_documents: int | None = None):
         """Load the first `num_initial_documents` entries from the collection
         and build the TF-IDF matrix."""
-        print(f"[ClassicRetriever] Loading {num_initial_documents} documents…")
+        n = num_initial_documents if num_initial_documents is not None else self.num_initial_documents
+        print(f"[ClassicRetriever] Loading {n} documents…")
         self.doc_ids = []
         self.doc_texts = []
 
         for i, doc in enumerate(load_jsonl(COLLECTION_JSONL)):
-            if i >= num_initial_documents:
+            if i >= n:
                 break
             self.doc_ids.append(doc["key"])
             self.doc_texts.append(doc["data"].strip())
             if (i + 1) % 1_000 == 0:
-                print(f"\r  {i + 1}/{num_initial_documents} loaded", end="", flush=True)
+                print(f"\r  {i + 1}/{n} loaded", end="", flush=True)
 
         print(f"\n[ClassicRetriever] Fitting TF-IDF vectoriser over {len(self.doc_texts)} docs…")
         self.vectorizer = TfidfVectorizer(
@@ -61,6 +63,24 @@ class ClassicRetriever(BaseRetriever):
             lowercase=True,
             strip_accents="unicode",
             max_features=50_000,        # cap vocabulary for memory efficiency
+        )
+        self.doc_matrix = self.vectorizer.fit_transform(self.doc_texts)
+        print("[ClassicRetriever] Corpus ready.")
+
+    def build_corpus_from_docs(self, docs: list[dict]):
+        """Build the TF-IDF corpus from a pre-loaded list of {"key":…,"data":…} dicts.
+
+        Use this instead of build_corpus() when you want to control exactly
+        which documents are in the corpus (e.g. seeded with relevant passages).
+        """
+        print(f"[ClassicRetriever] Indexing {len(docs)} pre-loaded documents…")
+        self.doc_ids   = [d["key"] for d in docs]
+        self.doc_texts = [d["data"].strip() for d in docs]
+        self.vectorizer = TfidfVectorizer(
+            analyzer="word",
+            lowercase=True,
+            strip_accents="unicode",
+            max_features=50_000,
         )
         self.doc_matrix = self.vectorizer.fit_transform(self.doc_texts)
         print("[ClassicRetriever] Corpus ready.")

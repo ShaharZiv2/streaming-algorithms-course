@@ -18,6 +18,7 @@ joblib = "*"
 datasketch = "*"
 requests = "*"
 nltk = "*"
+llama-cpp-python = "*"
 
 [build-system]
 requires = ["poetry-core"]

@@ -5,8 +5,9 @@ from logic.constants import COLLECTION_JSONL
 
 class BaseRetriever(ABC):
 
-    def __init__(self):
-        self.corpus = self.build_corpus()
+    def __init__(self, lazy: bool = False):
+        if not lazy:
+            self.corpus = self.build_corpus()
 
     @abstractmethod
     def build_corpus(self):
