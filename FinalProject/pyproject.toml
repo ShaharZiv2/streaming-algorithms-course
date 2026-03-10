@@ -17,6 +17,7 @@ seaborn = "*"
 joblib = "*"
 datasketch = "*"
 requests = "*"
+nltk = "*"
 
 
 [build-system]

@@ -207,4 +207,8 @@ marimo/_lsp/
 __marimo__/
 
 # Data
-datasets/
+datasets/jsonl/*
+datasets/processed/clustered_corpus/*
+datasets/processed/min_hash/*
+datasets/tsv/*
+
