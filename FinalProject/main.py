@@ -15,6 +15,6 @@ if __name__ == '__main__':
 
 
 
-# base line retriever =
+# base line retriever = bnn 25
 # lsh minhash retriever =
 # metrics: time taken to build corpus, time taken to retrieve, recall@k, precision@k, F1@k, MRR@k
