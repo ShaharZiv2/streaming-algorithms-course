@@ -7,10 +7,35 @@ from pathlib import Path
 
 import requests
 
-from logic.constants import COLLECTION_URL, COLLECTION_TSV, QUERIES_TSV, QUERIES_URL, QRELS_TSV, QRELS_URL, \
-    COLLECTION_JSONL, QUERIES_JSONL, QRELS_JSONL
+from logic.constants import (
+    COLLECTION_URL, COLLECTION_TSV, QUERIES_TSV, QUERIES_URL, QRELS_TSV, QRELS_URL,
+    COLLECTION_JSONL, QUERIES_JSONL, QRELS_JSONL,
+    TSV_FILES_DIR, JSONL_FILES_DIR, PROCESSED_FILES_DIR,
+    PROCESSED_MIN_HASH_FILES_DIR, PROCESSED_PROB_MIN_HASH_FILES_DIR,
+    CORPUS_DIR, MIN_HASH_CORPUS_DIR, PROB_MIN_HASH_CORPUS_DIR, TF_IDF_DIR,
+)
 
 FIVE_MB = 5 * 1024 * 1024
+
+# All dataset directory paths (folders only) from constants
+_OUTPUT_DIRS = (
+    TSV_FILES_DIR,
+    JSONL_FILES_DIR,
+    PROCESSED_FILES_DIR,
+    PROCESSED_MIN_HASH_FILES_DIR,
+    PROCESSED_PROB_MIN_HASH_FILES_DIR,
+    CORPUS_DIR,
+    MIN_HASH_CORPUS_DIR,
+    PROB_MIN_HASH_CORPUS_DIR,
+    TF_IDF_DIR,
+)
+
+
+def create_output_dirs():
+    """Create all dataset directories from constants if they do not exist. Creates only folders, not files."""
+    for dir_path in _OUTPUT_DIRS:
+        Path(dir_path).mkdir(parents=True, exist_ok=True)
+
 
 def download_data(url: str, destination: str, skip_exists):
     """Download the MS MARCO passage collection and save it as datasets/MS_MACRO_raw.tsv."""
@@ -63,6 +88,7 @@ def prepare_data(download=False, skip_exists=True):
     The queries: https://msmarco.z22.web.core.windows.net/msmarcoranking/queries.tar.gz
     The qrels: https://msmarco.z22.web.core.windows.net/msmarcoranking/qrels.dev.tsv
     """
+    create_output_dirs()
     if download:
         download_data(COLLECTION_URL, COLLECTION_TSV, skip_exists)
         download_data(QUERIES_URL, QUERIES_TSV, skip_exists)
