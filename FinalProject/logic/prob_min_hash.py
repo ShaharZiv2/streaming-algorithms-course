@@ -20,7 +20,7 @@ class ProbMinHash4:
         self.boundaries = raw_boundaries / self.first_boundary
         self.trunc_exp_limits = np.diff(raw_boundaries, prepend=0.0)
 
-    def fit(self, keys, weights) -> list:
+    def fit(self, keys, weights):
         m = self.num_perm
         result = [None] * m
 
