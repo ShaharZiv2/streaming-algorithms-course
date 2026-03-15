@@ -300,6 +300,115 @@ def plot_update_times(
 
 
 # ---------------------------------------------------------------------------
+# 4-panel retriever comparison: retrieve time, update time, credibility, distance
+# ---------------------------------------------------------------------------
+
+def plot_retriever_comparison(
+    results_df: pd.DataFrame,
+    update_df: pd.DataFrame,
+    save_path: str = "datasets/evaluations",
+) -> None:
+    """4-panel side-by-side comparison of all retrievers on MS MARCO.
+
+    Panels
+    ------
+    1. Mean retrieve time (s) per retriever  – lower is better
+    2. Mean update time (s) per retriever    – lower is better
+    3. Mean credibility score per retriever  – higher is better
+    4. Mean distance score per retriever     – lower is better (closer match)
+
+    Parameters
+    ----------
+    results_df : DataFrame produced by run_benchmark()
+                 (columns: retriever, latency_s, credibility_score, distance_score, …)
+    update_df  : DataFrame produced by run_update_experiment()
+                 (columns: retriever, update_latency_s)
+    save_path  : directory where the PNG will be written
+    """
+    _ensure_dir(save_path)
+
+    retrievers = sorted(results_df["retriever"].unique())
+    colors = [PALETTE[i % len(PALETTE)] for i in range(len(retrievers))]
+    x = np.arange(len(retrievers))
+
+    fig, axes = plt.subplots(1, 4, figsize=(18, 5))
+    fig.suptitle(
+        "Retriever Comparison on MS MARCO\n"
+        "(retrieve time, update time, credibility score, distance score)",
+        fontsize=13, y=1.03,
+    )
+
+    def _bar(ax, values, stds, title, ylabel, invert_note=""):
+        ax.bar(x, values, yerr=stds, capsize=5, width=0.55,
+               color=colors, alpha=0.85, edgecolor="black")
+        ax.set_xticks(x)
+        ax.set_xticklabels(retrievers, rotation=20, ha="right", fontsize=9)
+        ax.set_ylabel(ylabel, fontsize=10)
+        ax.set_title(f"{title}\n{invert_note}", fontsize=10)
+        ax.grid(True, axis="y", alpha=0.3)
+        # Annotate values on top of bars
+        for xi, (v, s) in enumerate(zip(values, stds)):
+            ax.text(xi, v + s + max(values) * 0.01, f"{v:.4f}",
+                    ha="center", va="bottom", fontsize=7.5)
+
+    # --- Panel 1: Retrieve time ---
+    ret_means = [float(results_df[results_df["retriever"] == r]["latency_s"].mean()) for r in retrievers]
+    ret_stds  = [float(results_df[results_df["retriever"] == r]["latency_s"].std(ddof=0)) for r in retrievers]
+    _bar(axes[0], ret_means, ret_stds,
+         title="Retrieve Time", ylabel="Mean latency (s)", invert_note="↓ lower is better")
+
+    # --- Panel 2: Update time ---
+    upd_retrievers = update_df["retriever"].unique() if update_df is not None else []
+    upd_means, upd_stds = [], []
+    for r in retrievers:
+        if r in upd_retrievers:
+            sub = update_df[update_df["retriever"] == r]["update_latency_s"]
+            upd_means.append(float(sub.mean()))
+            upd_stds.append(float(sub.std(ddof=0)))
+        else:
+            upd_means.append(0.0)
+            upd_stds.append(0.0)
+    _bar(axes[1], upd_means, upd_stds,
+         title="Update Time", ylabel="Mean update latency (s)", invert_note="↓ lower is better")
+
+    # --- Panel 3: Credibility score ---
+    if "credibility_score" in results_df.columns:
+        cred_means = [float(results_df[results_df["retriever"] == r]["credibility_score"].mean()) for r in retrievers]
+        cred_stds  = [float(results_df[results_df["retriever"] == r]["credibility_score"].std(ddof=0)) for r in retrievers]
+        _bar(axes[2], cred_means, cred_stds,
+             title="Credibility Score", ylabel="Score (0–100)", invert_note="↑ higher is better")
+        from evaluation.metrics import MISINFORMATION_CREDIBILITY_THRESHOLD
+        axes[2].axhline(MISINFORMATION_CREDIBILITY_THRESHOLD, color="orange",
+                        linestyle="--", linewidth=1.2,
+                        label=f"Threshold ({MISINFORMATION_CREDIBILITY_THRESHOLD})")
+        axes[2].legend(fontsize=7)
+        axes[2].set_ylim(0, 110)
+    else:
+        axes[2].set_visible(False)
+
+    # --- Panel 4: Distance score ---
+    if "distance_score" in results_df.columns:
+        dist_means = [float(results_df[results_df["retriever"] == r]["distance_score"].mean()) for r in retrievers]
+        dist_stds  = [float(results_df[results_df["retriever"] == r]["distance_score"].std(ddof=0)) for r in retrievers]
+        _bar(axes[3], dist_means, dist_stds,
+             title="Distance Score", ylabel="Cosine distance (0–1)", invert_note="↓ lower is better")
+        from evaluation.metrics import HALLUCINATION_DISTANCE_THRESHOLD
+        axes[3].axhline(HALLUCINATION_DISTANCE_THRESHOLD, color="red",
+                        linestyle="--", linewidth=1.2,
+                        label=f"Hallucination threshold ({HALLUCINATION_DISTANCE_THRESHOLD})")
+        axes[3].legend(fontsize=7)
+        axes[3].set_ylim(0, 1.1)
+    else:
+        axes[3].set_visible(False)
+
+    plt.tight_layout()
+    out = f"{save_path}/retriever_comparison.png"
+    plt.savefig(out, dpi=150, bbox_inches="tight")
+    print(f"Saved → {out}")
+    plt.close()
+
+
+# ---------------------------------------------------------------------------
 # Convenience: generate all standard plots at once
 # ---------------------------------------------------------------------------
 
@@ -307,6 +416,7 @@ def generate_all_plots(
     results_df: pd.DataFrame,
     top_k: int = 10,
     save_path: str = "datasets/evaluations",
+    update_df: pd.DataFrame | None = None,
 ) -> None:
     """Call every standard plot function on the benchmark results DataFrame."""
     plot_metrics_comparison(results_df, top_k=top_k, save_path=save_path)
@@ -315,6 +425,8 @@ def generate_all_plots(
     plot_latency_vs_metric(results_df, metric=f"ndcg@{top_k}", save_path=save_path)
     plot_memory_comparison(results_df, save_path=save_path)
     plot_per_query_heatmap(results_df, metric="mrr", save_path=save_path)
+    if update_df is not None and not update_df.empty:
+        plot_retriever_comparison(results_df, update_df, save_path=save_path)
 
 
 # ---------------------------------------------------------------------------

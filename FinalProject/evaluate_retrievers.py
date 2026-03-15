@@ -24,7 +24,7 @@ import pandas as pd
 
 from evaluation.benchmark import (
     load_queries_and_qrels_from_qrels_jsonl,
-    load_queries_jsonl, load_qrels, run_benchmark, run_complexity_experiment,
+    run_benchmark, run_complexity_experiment,
 )
 from evaluation.plots import (
     generate_all_plots, plot_scaling_latency, plot_scaling_metrics,
@@ -32,10 +32,10 @@ from evaluation.plots import (
     plot_distance_scores, plot_credibility_scores, plot_complexity_curve,
 )
 from logic.constants import QRELS_JSONL, COLLECTION_JSONL
-from retrievers.ann_retriever import ANNRetriever
 from retrievers.base_retriever import BaseRetriever
+from retrievers.bm25_retriever import BM25Retriever
 from retrievers.classic_retriever import ClassicRetriever
-from retrievers.minhash_retriever import MinHashRetriever
+from retrievers.minhashLSH_retriever import MinHashLSHRetriever
 
 EVAL_DIR = "datasets/evaluations"
 TOP_K = 10
@@ -129,11 +129,11 @@ def run_scaling_experiment(
             print(f"  ClassicRetriever build failed: {e}")
 
         try:
-            ann = ANNRetriever(top_k=top_k, num_initial_documents=0)
-            ann.build_corpus_from_docs(corpus_docs)
-            retrievers["ANN"] = ann
+            bm25 = BM25Retriever(top_k=top_k, num_initial_documents=0)
+            bm25.build_corpus_from_docs(corpus_docs)
+            retrievers["BM25"] = bm25
         except Exception as e:
-            print(f"  ANNRetriever build failed: {e}")
+            print(f"  BM25Retriever build failed: {e}")
 
         bench_df = run_benchmark(retrievers, size_queries, size_qrels,
                                  top_k=top_k, max_queries=len(size_queries))
@@ -419,16 +419,19 @@ def main() -> None:
     classic.build_corpus_from_docs(corpus_docs)
     retrievers["Classic"] = classic
 
-    ann = ANNRetriever(top_k=args.top_k, num_initial_documents=0)
-    ann.build_corpus_from_docs(corpus_docs)
-    retrievers["ANN"] = ann
+    try:
+        bm25 = BM25Retriever(top_k=args.top_k, num_initial_documents=0)
+        bm25.build_corpus_from_docs(corpus_docs)
+        retrievers["BM25"] = bm25
+    except Exception as e:
+        print(f"  BM25Retriever build failed (skipping): {e}")
 
     try:
-        minhash = MinHashRetriever(top_k=args.top_k, num_initial_documents=0)
+        minhash = MinHashLSHRetriever(num_initial_documents=0, top_k=args.top_k)
         minhash.build_corpus_from_docs(corpus_docs)
         retrievers["MinHash"] = minhash
     except Exception as e:
-        print(f"  MinHashRetriever build failed (skipping): {e}")
+        print(f"  MinHashLSHRetriever build failed (skipping): {e}")
 
     if not args.skip_sketch:
         try:
@@ -494,23 +497,21 @@ def main() -> None:
     # 6. Running-Time Complexity experiment
     # ------------------------------------------------------------------
     print("\n[main] Running complexity experiment…")
-    from retrievers.classic_retriever import ClassicRetriever as _CR
-    from retrievers.ann_retriever import ANNRetriever as _ANNR
-    from retrievers.minhash_retriever import MinHashRetriever as _MHR
+    from retrievers.minhashLSH_retriever import MinHashLSHRetriever as _MHR
     from retrievers.sketch_retriever import SketchRetriever as _SKR
 
     def _make_classic(docs, k):
-        r = _CR(top_k=k, num_initial_documents=0)
+        r = ClassicRetriever(top_k=k, num_initial_documents=0)
         r.build_corpus_from_docs(docs)
         return r
 
-    def _make_ann(docs, k):
-        r = _ANNR(top_k=k, num_initial_documents=0)
+    def _make_bm25(docs, k):
+        r = BM25Retriever(top_k=k, num_initial_documents=0)
         r.build_corpus_from_docs(docs)
         return r
 
     def _make_minhash(docs, k):
-        r = _MHR(top_k=k, num_initial_documents=0)
+        r = _MHR(num_initial_documents=0, top_k=k)
         r.build_corpus_from_docs(docs)
         return r
 
@@ -519,9 +520,12 @@ def main() -> None:
         r.build_corpus_from_docs(docs)
         return r
 
-    complexity_factories = {"Classic (O(n))": _make_classic, "ANN (sub-linear)": _make_ann,
-                             "MinHash (sub-linear)": _make_minhash, "Sketch (sub-linear)": _make_sketch}
-
+    complexity_factories = {
+        "Classic (O(n))": _make_classic,
+        "BM25 (O(n))": _make_bm25,
+        "MinHash (sub-linear)": _make_minhash,
+        "Sketch (sub-linear)": _make_sketch,
+    }
     complexity_sizes = [100, 500, 1000, 2000, 5000, min(len(corpus_docs), 10000)]
     complexity_sizes = sorted(set(s for s in complexity_sizes if s <= len(corpus_docs)))
     test_query = eval_queries[0]["data"] if eval_queries else "what is the capital of France"
@@ -557,7 +561,7 @@ def main() -> None:
     # 8. Plots & summary
     # ------------------------------------------------------------------
     print("\n[main] Generating plots…")
-    generate_all_plots(results_df, top_k=args.top_k, save_path=EVAL_DIR)
+    generate_all_plots(results_df, top_k=args.top_k, save_path=EVAL_DIR, update_df=update_df)
     plot_update_times(update_df, save_path=EVAL_DIR)
     plot_distance_scores(results_df, save_path=EVAL_DIR)
     plot_credibility_scores(results_df, save_path=EVAL_DIR)

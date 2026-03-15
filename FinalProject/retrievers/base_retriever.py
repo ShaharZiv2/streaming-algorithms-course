@@ -18,5 +18,5 @@ class BaseRetriever(ABC):
         """Adds another document to the corpus"""
 
     @abstractmethod
-    def retrieve(self, query):
+    def retrieve(self, query: str, top_k: int | None = None):
         """Retrieves the relevant documents for the corpus"""

@@ -1,5 +1,5 @@
 """
-minhash_retriever.py – Approximate nearest-neighbour retriever based on
+minhashLSH_retriever.py – Approximate nearest-neighbour retriever based on
 MinHash Locality-Sensitive Hashing (LSH).
 
 Algorithm
@@ -23,7 +23,6 @@ Update : O(d)  – single insert into LSH index, no full rebuild
 from __future__ import annotations
 
 import re
-from typing import Optional
 
 import numpy as np
 from datasketch import MinHash, MinHashLSH
@@ -32,8 +31,9 @@ from logic.constants import COLLECTION_JSONL, SEED
 from logic.processing.file_utils import load_jsonl
 from retrievers.base_retriever import BaseRetriever
 
+
 # ---------------------------------------------------------------------------
-# Tokenisation helpers
+# Tokenisation helpers  (mirrors SketchRetriever's vectorizer/ngram approach)
 # ---------------------------------------------------------------------------
 
 _WORD_RE = re.compile(r"[a-z0-9]+")
@@ -60,48 +60,53 @@ def _make_minhash(text: str, num_perm: int = 128, k: int = 3) -> MinHash:
 # Retriever
 # ---------------------------------------------------------------------------
 
-class MinHashRetriever(BaseRetriever):
+class MinHashLSHRetriever(BaseRetriever):
     """Approximate k-NN retriever using MinHash LSH.
+
+    Constructor mirrors SketchRetriever:
+        MinHashLSHRetriever(num_initial_documents=10_000, ...)
 
     Parameters
     ----------
-    top_k               : default number of results to return
-    num_perm            : MinHash permutations (128 is a good accuracy/speed tradeoff)
-    lsh_threshold       : Jaccard similarity threshold for LSH bucket grouping;
-                          lower → wider buckets → higher recall, more candidates
-    shingle_k           : word-shingle size
-    num_initial_documents: 0 = lazy (call build_corpus_from_docs manually)
+    num_initial_documents : docs to auto-load from COLLECTION_JSONL on init;
+                            0 = lazy – call build_corpus_from_docs() manually
+    top_k                 : default number of results to return
+    num_perm              : MinHash permutations (128 is a good tradeoff)
+    lsh_threshold         : Jaccard threshold for LSH bucket grouping;
+                            lower → wider buckets → higher recall
+    shingle_k             : word-shingle size for tokenisation
     """
 
     def __init__(
         self,
+        num_initial_documents: int = 10_000,   # first arg – matches SketchRetriever
         top_k: int = 10,
         num_perm: int = 128,
         lsh_threshold: float = 0.1,
         shingle_k: int = 3,
-        num_initial_documents: int = 10_000,
     ):
+        self.num_initial_documents = num_initial_documents
         self.top_k = top_k
         self.num_perm = num_perm
         self.lsh_threshold = lsh_threshold
         self.shingle_k = shingle_k
-        self.num_initial_documents = num_initial_documents
 
-        # populated by build_corpus / build_corpus_from_docs
-        self.doc_ids: list[str] = []
-        self.doc_texts: list[str] = []
-        self._signatures: list[MinHash] = []
-        self._lsh: Optional[MinHashLSH] = None
+        # attribute names mirror SketchRetriever  (ids / signatures / doc_texts)
+        self.ids: list[str] = []
+        self.signatures: list[MinHash] = []
+        self.doc_texts: dict[str, str] = {}     # doc_id → text  (same as Sketch)
+        self.lsh_index: MinHashLSH | None = None
 
-        super().__init__(lazy=(self.num_initial_documents == 0))
+        super().__init__(lazy=(num_initial_documents == 0))
 
     # ------------------------------------------------------------------
     # BaseRetriever interface
     # ------------------------------------------------------------------
 
-    def build_corpus(self, num_initial_documents: int | None = None) -> None:
-        n = num_initial_documents if num_initial_documents is not None else self.num_initial_documents
-        print(f"[MinHashRetriever] Loading {n} documents…")
+    def build_corpus(self) -> None:
+        """Load first num_initial_documents docs from COLLECTION_JSONL and index."""
+        n = self.num_initial_documents
+        print(f"[MinHashLSHRetriever] Loading {n} documents…")
         docs = []
         for i, doc in enumerate(load_jsonl(COLLECTION_JSONL)):
             if i >= n:
@@ -114,20 +119,20 @@ class MinHashRetriever(BaseRetriever):
 
     def build_corpus_from_docs(self, docs: list[dict]) -> None:
         """Build LSH index from a pre-loaded list of {"key":…, "data":…} dicts."""
-        print(f"[MinHashRetriever] Indexing {len(docs)} pre-loaded documents…")
+        print(f"[MinHashLSHRetriever] Indexing {len(docs)} pre-loaded documents…")
         self._index_docs(docs)
 
     def update(self, document: dict) -> None:
-        """Add a single document to the LSH index (O(d) – no full rebuild)."""
+        """Add a single document dict to the LSH index (O(d) – no full rebuild)."""
         doc_id = document["key"]
         text   = document["data"].strip()
         m = _make_minhash(text, num_perm=self.num_perm, k=self.shingle_k)
-        self.doc_ids.append(doc_id)
-        self.doc_texts.append(text)
-        self._signatures.append(m)
-        if self._lsh is not None:
+        self.ids.append(doc_id)
+        self.signatures.append(m)
+        self.doc_texts[doc_id] = text
+        if self.lsh_index is not None:
             try:
-                self._lsh.insert(doc_id, m)
+                self.lsh_index.insert(doc_id, m)
             except ValueError:
                 pass  # duplicate key – skip
 
@@ -135,38 +140,35 @@ class MinHashRetriever(BaseRetriever):
         """Return top-k (doc_id, jaccard_score) pairs for *query*.
 
         Sub-linear query time: LSH bucket lookup + small candidate re-rank.
-        Falls back to full Hamming scan when LSH returns too few candidates.
+        Falls back to full Hamming scan when LSH returns too few candidates
+        (mirrors SketchRetriever's centroid fallback for small corpora).
         """
-        if self._lsh is None or not self.doc_ids:
+        if self.lsh_index is None or not self.ids:
             return []
 
         k = top_k if top_k is not None else self.top_k
         query_mh = _make_minhash(query, num_perm=self.num_perm, k=self.shingle_k)
 
         # 1. Sub-linear LSH candidate lookup
-        candidates: list[str] = self._lsh.query(query_mh)
+        candidates: list[str] = self.lsh_index.query(query_mh)
 
-        # 2. Fallback: Hamming-based scan when corpus is very small
+        # 2. Fallback: Hamming similarity scan (mirrors Sketch's centroid distance)
         if len(candidates) < k:
             q_hash = query_mh.hashvalues
             scores_all = [
                 (did, float(np.mean(sig.hashvalues == q_hash)))
-                for did, sig in zip(self.doc_ids, self._signatures)
+                for did, sig in zip(self.ids, self.signatures)
             ]
             scores_all.sort(key=lambda x: x[1], reverse=True)
             return scores_all[:k]
 
         # 3. Re-rank candidates by exact MinHash Jaccard estimate
-        id_to_sig: dict[str, MinHash] = {
-            did: sig for did, sig in zip(self.doc_ids, self._signatures)
-        }
-        scored = []
-        for cid in candidates:
-            sig = id_to_sig.get(cid)
-            if sig is None:
-                continue
-            scored.append((cid, float(query_mh.jaccard(sig))))
-
+        id_to_sig: dict[str, MinHash] = dict(zip(self.ids, self.signatures))
+        scored = [
+            (cid, float(query_mh.jaccard(id_to_sig[cid])))
+            for cid in candidates
+            if cid in id_to_sig
+        ]
         scored.sort(key=lambda x: x[1], reverse=True)
         return scored[:k]
 
@@ -175,11 +177,12 @@ class MinHashRetriever(BaseRetriever):
     # ------------------------------------------------------------------
 
     def _index_docs(self, docs: list[dict]) -> None:
-        self.doc_ids = []
-        self.doc_texts = []
-        self._signatures = []
+        """Compute MinHash signatures and build the LSH index."""
+        self.ids = []
+        self.signatures = []
+        self.doc_texts = {}
 
-        self._lsh = MinHashLSH(
+        self.lsh_index = MinHashLSH(
             threshold=self.lsh_threshold,
             num_perm=self.num_perm,
         )
@@ -188,14 +191,14 @@ class MinHashRetriever(BaseRetriever):
             doc_id = doc["key"]
             text   = doc["data"].strip()
             m = _make_minhash(text, num_perm=self.num_perm, k=self.shingle_k)
-            self.doc_ids.append(doc_id)
-            self.doc_texts.append(text)
-            self._signatures.append(m)
+            self.ids.append(doc_id)
+            self.signatures.append(m)
+            self.doc_texts[doc_id] = text
             try:
-                self._lsh.insert(doc_id, m)
+                self.lsh_index.insert(doc_id, m)
             except ValueError:
                 pass  # duplicate key – skip
 
-        print(f"[MinHashRetriever] LSH index ready ({len(self.doc_ids)} docs, "
+        print(f"[MinHashLSHRetriever] LSH index ready ({len(self.ids)} docs, "
               f"threshold={self.lsh_threshold}, num_perm={self.num_perm}).")
 
