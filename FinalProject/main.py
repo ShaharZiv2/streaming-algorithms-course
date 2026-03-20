@@ -17,5 +17,6 @@ if __name__ == '__main__':
 
 # base line retriever = bm25
 # lsh minhash retriever =
-# metrics: time taken to build corpus, time taken to retrieve, recall@k, precision@k, F1@k, MRR@k
+# metrics: time taken to build corpus, time taken to retrieve, calculate prescion in comparion to classic and bm25 base line to get prescion
+# from that we will get the bias and variance of the sketch retriever
 
