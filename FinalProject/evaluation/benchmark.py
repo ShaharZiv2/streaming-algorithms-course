@@ -27,6 +27,7 @@ import pandas as pd
 
 from evaluation.metrics import (
     compute_all_metrics,
+    baseline_precision,
     credibility_score,
     distance_score,
     hallucination_flagged,
@@ -81,22 +82,26 @@ def run_benchmark(
     qrels: dict[str, set[str]],
     top_k: int = 10,
     max_queries: int | None = None,
+    baseline_names: tuple[str, ...] = ("Classic", "BM25"),
 ) -> pd.DataFrame:
     """Evaluate every retriever over every query.
 
     Parameters
     ----------
-    retrievers   : mapping of name → retriever instance
-    queries      : list of {"key": qid, "data": query_text}
-    qrels        : dict of qid → set of relevant doc_ids
-    top_k        : number of results to request per query
-    max_queries  : optional cap on number of queries (handy for quick tests)
+    retrievers      : mapping of name → retriever instance
+    queries         : list of {"key": qid, "data": query_text}
+    qrels           : dict of qid → set of relevant doc_ids
+    top_k           : number of results to request per query
+    max_queries     : optional cap on number of queries
+    baseline_names  : retriever names treated as the baseline for
+                      baseline_precision computation (default: Classic + BM25)
 
     Returns
     -------
     pd.DataFrame with columns:
         retriever, query_id, latency_s, memory_mb,
-        precision@k, recall@k, ndcg@k, mrr, ap
+        precision@k, recall@k, ndcg@k, mrr, ap,
+        baseline_precision, distance_score, credibility_score, …
     """
     rows: list[dict[str, Any]] = []
 
@@ -108,12 +113,47 @@ def run_benchmark(
     total = len(eval_queries)
     print(f"[benchmark] Evaluating {total} queries × {len(retrievers)} retrievers…")
 
+    # ------------------------------------------------------------------
+    # Pre-compute per-baseline results for every query.
+    # per_baseline_results[baseline_name][qid] = list of doc_ids
+    # This lets us compute vs_Classic and vs_BM25 precision separately
+    # for every retriever (including the cross-baseline comparison).
+    # ------------------------------------------------------------------
+    per_baseline_results: dict[str, dict[str, list[str]]] = {}
+    for bname in baseline_names:
+        if bname not in retrievers:
+            continue
+        retriever = retrievers[bname]
+        print(f"\n  [baseline] Pre-computing results for {bname}…")
+        per_baseline_results[bname] = {}
+        for query in eval_queries:
+            qid = query["key"]
+            try:
+                result = retriever.retrieve(query["data"].strip(), top_k=top_k)
+                if result and isinstance(result[0], tuple):
+                    doc_ids = [d for d, _ in result]
+                else:
+                    doc_ids = list(result)
+            except Exception:
+                doc_ids = []
+            per_baseline_results[bname][qid] = doc_ids
+
+    # Keep the combined view for backward compatibility
+    baseline_results: dict[str, list[str]] = {}
+    for bname, bq in per_baseline_results.items():
+        for qid, doc_ids in bq.items():
+            baseline_results.setdefault(qid, [])
+            baseline_results[qid].extend(d for d in doc_ids if d not in baseline_results[qid])
+
+    # ------------------------------------------------------------------
+    # Main benchmark loop
+    # ------------------------------------------------------------------
     for retriever_name, retriever in retrievers.items():
         print(f"\n  → {retriever_name}")
 
-        # Get the TF-IDF vectorizer + SVD transform if available (for distance scores)
         vectorizer = getattr(retriever, "vectorizer", None)
         svd        = getattr(retriever, "svd", None)
+        is_baseline = retriever_name in baseline_names
 
         for i, query in enumerate(eval_queries):
             qid = query["key"]
@@ -129,16 +169,42 @@ def run_benchmark(
                 metrics = compute_all_metrics([], relevant, k=top_k)
 
             # ----------------------------------------------------------
-            # Distance Score – cosine distance for the top-1 retrieved passage
-            # Uses the retriever's own TF-IDF+SVD embeddings when available,
-            # falls back to raw TF-IDF when SVD is not present.
+            # Per-baseline precision: how much overlap does this retriever
+            # have with each individual baseline's results?
+            #
+            # For a baseline retriever (e.g. Classic), we compute its
+            # overlap with the OTHER baseline (e.g. BM25), giving a
+            # meaningful cross-baseline agreement score instead of 1.0.
             # ----------------------------------------------------------
-            top1_distance = 1.0   # default: orthogonal (worst case)
+            per_bl_precision: dict[str, float] = {}
+            for bname in baseline_names:
+                if bname not in per_baseline_results:
+                    continue
+                bl_doc_ids = per_baseline_results[bname].get(qid, [])
+                if retriever_name == bname:
+                    # This IS that baseline — skip (would be trivially 1.0)
+                    per_bl_precision[f"vs_{bname}"] = float("nan")
+                else:
+                    per_bl_precision[f"vs_{bname}"] = baseline_precision(doc_ids, bl_doc_ids)
+
+            # Keep the combined baseline_precision for backward compat
+            bl_precision = baseline_precision(doc_ids, baseline_results.get(qid, []))
+            if retriever_name in baseline_names:
+                # For a baseline, combined includes own results → recompute
+                # against only the OTHER baselines
+                others = [d for bn, bq in per_baseline_results.items()
+                          if bn != retriever_name
+                          for d in bq.get(qid, [])]
+                bl_precision = baseline_precision(doc_ids, others) if others else float("nan")
+
+            # ----------------------------------------------------------
+            # Distance Score
+            # ----------------------------------------------------------
+            top1_distance = 1.0
             top1_hallucination = True
             if doc_ids and vectorizer is not None:
                 try:
                     q_vec = vectorizer.transform([query_text])
-                    # Use SVD-reduced vectors if available (same space as index)
                     if svd is not None:
                         q_emb = svd.transform(q_vec)
                         doc_idx = retriever.doc_ids.index(doc_ids[0])
@@ -153,12 +219,12 @@ def run_benchmark(
                     )
                     top1_hallucination = hallucination_flagged(top1_distance)
                 except Exception:
-                    pass  # keep defaults
+                    pass
 
             # ----------------------------------------------------------
-            # Credibility Score – lexical heuristic on top-1 passage text
+            # Credibility Score
             # ----------------------------------------------------------
-            top1_credibility = 50.0   # neutral default
+            top1_credibility = 50.0
             top1_misinformation = False
             if doc_ids and hasattr(retriever, "doc_ids") and hasattr(retriever, "doc_texts"):
                 try:
@@ -173,10 +239,10 @@ def run_benchmark(
                 "query_id": qid,
                 "latency_s": latency_s,
                 "memory_mb": memory_mb,
-                # Distance Score (lower = better semantic match)
+                "baseline_precision": bl_precision,
+                **per_bl_precision,
                 "distance_score": top1_distance,
                 "hallucination_flagged": int(top1_hallucination),
-                # Credibility Score (higher = more credible source)
                 "credibility_score": top1_credibility,
                 "misinformation_flagged": int(top1_misinformation),
                 **metrics,
@@ -186,7 +252,7 @@ def run_benchmark(
             if (i + 1) % 50 == 0 or (i + 1) == total:
                 print(f"\r    {i + 1}/{total} queries done", end="", flush=True)
 
-        print()  # newline after progress
+        print()
 
     return pd.DataFrame(rows)
 

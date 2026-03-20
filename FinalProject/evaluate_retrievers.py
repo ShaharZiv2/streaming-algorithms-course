@@ -30,6 +30,7 @@ from evaluation.plots import (
     generate_all_plots, plot_scaling_latency, plot_scaling_metrics,
     plot_update_times, plot_llm_metrics,
     plot_distance_scores, plot_credibility_scores, plot_complexity_curve,
+    plot_sketch_vs_baseline, plot_minhash_vs_baseline,
 )
 from logic.constants import QRELS_JSONL, COLLECTION_JSONL
 from retrievers.base_retriever import BaseRetriever
@@ -37,6 +38,7 @@ from retrievers.bm25_retriever import BM25Retriever
 from retrievers.classic_retriever import ClassicRetriever
 from retrievers.min_hash_retriever import MinHashRetriever
 from retrievers.minhashLSH_retriever import MinHashLSHRetriever
+from retrievers.prob_min_hash_retriever import ProbMinHashRetriever
 
 EVAL_DIR = "datasets/evaluations"
 TOP_K = 10
@@ -52,7 +54,8 @@ def generate_summary_report(results_df: pd.DataFrame, top_k: int = TOP_K, save_p
 
     metric_cols = [f"precision@{top_k}", f"recall@{top_k}", f"ndcg@{top_k}", "mrr", "ap"]
     metric_cols = [c for c in metric_cols if c in results_df.columns]
-    score_cols  = ["distance_score", "credibility_score",
+    score_cols  = ["baseline_precision", "vs_Classic", "vs_BM25",
+                   "distance_score", "credibility_score",
                    "hallucination_flagged", "misinformation_flagged"]
     score_cols  = [c for c in score_cols if c in results_df.columns]
     all_cols = metric_cols + score_cols + ["latency_s", "memory_mb"]
@@ -97,6 +100,67 @@ def generate_summary_report(results_df: pd.DataFrame, top_k: int = TOP_K, save_p
         fastest = min(retrievers, key=lambda r: stats[r]["latency_s"][0])
         f.write(f"  Fastest              : {fastest}  ({stats[fastest]['latency_s'][0]:.4f} s)\n")
         f.write("\n")
+
+        # ------------------------------------------------------------------
+        # Focused: MinHash family vs Baseline (the 3 core comparison metrics)
+        # ------------------------------------------------------------------
+        SKETCH_NAMES = ("MinHash", "MinHashLSH", "ProbMinHash")
+        BASELINE_NAMES = ("Classic", "BM25")
+        sketch_retrievers  = [r for r in retrievers if r in SKETCH_NAMES]
+        baseline_retrievers = [r for r in retrievers if r in BASELINE_NAMES]
+
+        if sketch_retrievers and baseline_retrievers:
+            f.write("=" * 80 + "\n")
+            f.write("MinHash Sketch Retrievers vs Baseline (Classic + BM25)\n")
+            f.write("Focus: Retrieval Time  |  Peak Memory  |  Prec vs Classic  |  Prec vs BM25\n")
+            f.write("=" * 80 + "\n\n")
+
+            header = (f"  {'Retriever':<18}  {'Latency (s)':>14}  {'Memory (MB)':>14}"
+                      f"  {'vs Classic':>12}  {'vs BM25':>12}\n")
+            f.write(header)
+            f.write("  " + "-" * (len(header) - 3) + "\n")
+
+            for group_label, group in [("Baseline", baseline_retrievers), ("Sketch", sketch_retrievers)]:
+                f.write(f"  --- {group_label} ---\n")
+                for ret in group:
+                    lat_mean, lat_std = stats[ret]["latency_s"]
+                    mem_mean, mem_std = stats[ret]["memory_mb"]
+
+                    def _fmt_prec(col):
+                        if col in stats[ret]:
+                            m, s = stats[ret][col]
+                            return f"{m:.3f}±{s:.3f}" if not (m != m) else "  N/A (self)"
+                        return "     N/A"
+
+                    f.write(
+                        f"  {ret:<18}  "
+                        f"{lat_mean:>7.4f}±{lat_std:<5.4f}  "
+                        f"{mem_mean:>7.4f}±{mem_std:<5.4f}  "
+                        f"{_fmt_prec('vs_Classic'):>14}  "
+                        f"{_fmt_prec('vs_BM25'):>14}\n"
+                    )
+            f.write("\n")
+
+            # Speed-up / memory reduction ratios vs each baseline
+            for baseline in baseline_retrievers:
+                b_lat = stats[baseline]["latency_s"][0]
+                b_mem = stats[baseline]["memory_mb"][0]
+                f.write(f"  Ratios vs {baseline}:\n")
+                for sketch in sketch_retrievers:
+                    s_lat = stats[sketch]["latency_s"][0]
+                    s_mem = stats[sketch]["memory_mb"][0]
+                    col = f"vs_{baseline}"
+                    s_prec = stats[sketch].get(col, (float("nan"), 0.0))[0]
+                    speedup = b_lat / s_lat if s_lat > 0 else float("inf")
+                    mem_ratio = s_mem / b_mem if b_mem > 0 else float("inf")
+                    prec_str = f"{s_prec:.4f}" if s_prec == s_prec else "N/A"
+                    f.write(
+                        f"    {sketch:<16}: "
+                        f"speed-up={speedup:.2f}x  "
+                        f"mem_ratio={mem_ratio:.2f}x  "
+                        f"prec_vs_{baseline}={prec_str}\n"
+                    )
+                f.write("\n")
 
     print(f"Saved summary report → {report_path}")
 
@@ -292,10 +356,6 @@ def parse_args() -> argparse.Namespace:
         help="Retrieval depth (default: 10)"
     )
     parser.add_argument(
-        "--skip-sketch", action="store_true",
-        help="Skip SketchRetriever (slow to build)"
-    )
-    parser.add_argument(
         "--scaling", action="store_true",
         help="Run corpus-size scaling experiment"
     )
@@ -392,7 +452,6 @@ def main() -> None:
     if args.quick:
         args.corpus_size = 500
         args.max_queries = 30
-        args.skip_sketch = True
         args.scaling = False
 
     os.makedirs(EVAL_DIR, exist_ok=True)
@@ -448,14 +507,13 @@ def main() -> None:
     except Exception as e:
         print(f"  MinHashRetriever build failed (skipping): {e}")
 
-    if not args.skip_sketch:
-        try:
-            from retrievers.sketch_retriever import SketchRetriever
-            sketch = SketchRetriever(dbscan_eps=0.85, num_initial_documents=0)
-            sketch.build_corpus_from_docs(corpus_docs)
-            retrievers["Sketch"] = sketch
-        except Exception as e:
-            print(f"  SketchRetriever build failed (skipping): {e}")
+    try:
+        prob_minhash = ProbMinHashRetriever(dbscan_eps=0.85, corpus_initial_size=0)
+        prob_minhash.build_corpus_from_docs(corpus_docs)
+        retrievers["ProbMinHash"] = prob_minhash
+    except Exception as e:
+        print(f"  ProbMinHashRetriever build failed (skipping): {e}")
+
 
     # ------------------------------------------------------------------
     # 4. Benchmark
@@ -513,7 +571,6 @@ def main() -> None:
     # ------------------------------------------------------------------
     print("\n[main] Running complexity experiment…")
     from retrievers.minhashLSH_retriever import MinHashLSHRetriever as _MHR
-    from retrievers.sketch_retriever import SketchRetriever as _SKR
 
     def _make_classic(docs, k):
         r = ClassicRetriever(top_k=k, num_initial_documents=0)
@@ -535,17 +592,11 @@ def main() -> None:
         r.build_corpus_from_docs(docs)
         return r
 
-    def _make_sketch(docs, k):
-        r = _SKR(dbscan_eps=0.85, num_initial_documents=0)
-        r.build_corpus_from_docs(docs)
-        return r
-
     complexity_factories = {
         "Classic (O(n))": _make_classic,
         "BM25 (O(n))": _make_bm25,
         "MinHash (sub-linear)": _make_minhash,
         "MinHashLSH (sub-linear)": _make_minhash_lsh,
-        "Sketch (sub-linear)": _make_sketch,
     }
     complexity_sizes = [100, 500, 1000, 2000, 5000, min(len(corpus_docs), 10000)]
     complexity_sizes = sorted(set(s for s in complexity_sizes if s <= len(corpus_docs)))
@@ -586,6 +637,10 @@ def main() -> None:
     plot_update_times(update_df, save_path=EVAL_DIR)
     plot_distance_scores(results_df, save_path=EVAL_DIR)
     plot_credibility_scores(results_df, save_path=EVAL_DIR)
+    plot_sketch_vs_baseline(results_df, save_path=EVAL_DIR)
+    # Focused comparison: MinHash / MinHashLSH / ProbMinHash vs Classic + BM25
+    # on the 3 core metrics: retrieval time, memory, baseline precision
+    plot_minhash_vs_baseline(results_df, save_path=EVAL_DIR)
 
     print("\n[main] Writing summary report…")
     generate_summary_report(results_df, top_k=args.top_k, save_path=EVAL_DIR)

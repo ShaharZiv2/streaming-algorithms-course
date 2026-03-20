@@ -202,6 +202,23 @@ def misinformation_flagged(
 # Unified metric computation
 # ---------------------------------------------------------------------------
 
+def baseline_precision(retrieved: list[str], baseline_retrieved: list[str]) -> float:
+    """Precision of a sketch retriever's results against the baseline result set.
+
+    Measures what fraction of the sketch retriever's returned doc IDs also
+    appear in the combined results of the baseline retrievers (Classic + BM25).
+    This tells you how well the sketch approximates the baseline, independent
+    of ground-truth qrels.
+
+    Returns 0.0 if either list is empty.
+    """
+    if not retrieved or not baseline_retrieved:
+        return 0.0
+    baseline_set = set(baseline_retrieved)
+    hits = sum(1 for doc_id in retrieved if doc_id in baseline_set)
+    return hits / len(retrieved)
+
+
 def compute_all_metrics(
     retrieved: list[str],
     relevant: set[str],

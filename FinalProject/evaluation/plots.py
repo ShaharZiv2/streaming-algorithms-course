@@ -409,6 +409,217 @@ def plot_retriever_comparison(
 
 
 # ---------------------------------------------------------------------------
+# Sketch vs Baseline comparison: retrieve time, memory, baseline precision
+# ---------------------------------------------------------------------------
+
+def plot_sketch_vs_baseline(
+    results_df: pd.DataFrame,
+    baseline_names: tuple[str, ...] = ("Classic", "BM25"),
+    save_path: str = "datasets/evaluations",
+) -> None:
+    """3-panel bar chart comparing sketch retrievers to the Classic+BM25 baseline.
+
+    Panels
+    ------
+    1. Mean retrieve time (s)       – all retrievers, lower is better
+    2. Mean peak memory (MB)        – all retrievers, lower is better
+    3. Baseline precision           – fraction of each retriever's results that
+                                      overlap with the combined Classic+BM25 result
+                                      set. Baseline retrievers are always 1.0.
+                                      Sketch retrievers show how well they
+                                      approximate the baseline.
+
+    Parameters
+    ----------
+    results_df     : DataFrame from run_benchmark() — must contain
+                     latency_s, memory_mb, baseline_precision columns
+    baseline_names : retriever names that form the baseline (shown in grey)
+    save_path      : output directory
+    """
+    _ensure_dir(save_path)
+    if "baseline_precision" not in results_df.columns:
+        print("Warning: baseline_precision not in results, skipping sketch_vs_baseline plot")
+        return
+
+    retrievers = sorted(results_df["retriever"].unique())
+    # Baselines grey, sketch retrievers coloured
+    colors = []
+    sketch_color_iter = iter(PALETTE)
+    for r in retrievers:
+        if r in baseline_names:
+            colors.append("#AAAAAA")
+        else:
+            colors.append(next(sketch_color_iter, "#333333"))
+
+    x = np.arange(len(retrievers))
+    fig, axes = plt.subplots(1, 3, figsize=(16, 5))
+    fig.suptitle(
+        "Sketch Retrievers vs Baseline (Classic + BM25)\n"
+        "on Retrieve Time, Memory, and Baseline Precision",
+        fontsize=13, y=1.03,
+    )
+
+    def _bar(ax, values, stds, title, ylabel, note=""):
+        bars = ax.bar(x, values, yerr=stds, capsize=5, width=0.55,
+                      color=colors, alpha=0.85, edgecolor="black")
+        ax.set_xticks(x)
+        ax.set_xticklabels(retrievers, rotation=20, ha="right", fontsize=9)
+        ax.set_ylabel(ylabel, fontsize=10)
+        ax.set_title(f"{title}\n{note}", fontsize=10)
+        ax.grid(True, axis="y", alpha=0.3)
+        for xi, (v, s) in enumerate(zip(values, stds)):
+            ax.text(xi, v + s + max(values) * 0.02, f"{v:.4f}",
+                    ha="center", va="bottom", fontsize=7.5)
+
+    # Panel 1: retrieve time
+    lat_means = [float(results_df[results_df["retriever"] == r]["latency_s"].mean()) for r in retrievers]
+    lat_stds  = [float(results_df[results_df["retriever"] == r]["latency_s"].std(ddof=0)) for r in retrievers]
+    _bar(axes[0], lat_means, lat_stds, "Retrieve Time", "Mean latency (s)", "↓ lower is better")
+
+    # Panel 2: memory
+    mem_means = [float(results_df[results_df["retriever"] == r]["memory_mb"].mean()) for r in retrievers]
+    mem_stds  = [float(results_df[results_df["retriever"] == r]["memory_mb"].std(ddof=0)) for r in retrievers]
+    _bar(axes[1], mem_means, mem_stds, "Peak Memory", "Mean memory (MB)", "↓ lower is better")
+
+    # Panel 3: baseline precision
+    bp_means = [float(results_df[results_df["retriever"] == r]["baseline_precision"].mean()) for r in retrievers]
+    bp_stds  = [float(results_df[results_df["retriever"] == r]["baseline_precision"].std(ddof=0)) for r in retrievers]
+    _bar(axes[2], bp_means, bp_stds, "Baseline Precision",
+         "Fraction overlapping with Classic+BM25", "↑ higher = closer to baseline")
+    axes[2].set_ylim(0, 1.15)
+
+    # Legend: grey = baseline, colour = sketch
+    from matplotlib.patches import Patch
+    legend_elements = [Patch(facecolor="#AAAAAA", edgecolor="black", label="Baseline (Classic / BM25)")]
+    axes[2].legend(handles=legend_elements, fontsize=8, loc="lower right")
+
+    plt.tight_layout()
+    out = f"{save_path}/sketch_vs_baseline.png"
+    plt.savefig(out, dpi=150, bbox_inches="tight")
+    print(f"Saved → {out}")
+    plt.close()
+
+
+# ---------------------------------------------------------------------------
+# MinHash vs Baseline focused comparison
+# ---------------------------------------------------------------------------
+
+def plot_minhash_vs_baseline(
+    results_df: pd.DataFrame,
+    sketch_names: tuple[str, ...] = ("MinHash", "MinHashLSH", "ProbMinHash"),
+    baseline_names: tuple[str, ...] = ("Classic", "BM25"),
+    save_path: str = "datasets/evaluations",
+) -> None:
+    """4-panel bar chart: MinHash family vs Classic+BM25 baseline.
+
+    Panels
+    ------
+    1. Mean retrieval time (s)      – lower is better
+    2. Mean peak memory (MB)        – lower is better
+    3. Precision vs Classic         – fraction of each retriever's results that
+                                      also appear in Classic's result set.
+                                      Classic itself is skipped (would be 1.0).
+    4. Precision vs BM25            – same, but against BM25's result set.
+                                      BM25 itself is skipped.
+
+    This separates Classic and BM25 so you can see whether a sketch retriever
+    agrees more with one baseline than the other, and how much Classic and
+    BM25 agree with each other.
+    """
+    _ensure_dir(save_path)
+
+    # Order: baselines first (grey), then sketches (coloured)
+    all_retrievers = sorted(results_df["retriever"].unique())
+    ordered = (
+        [r for r in all_retrievers if r in baseline_names] +
+        [r for r in all_retrievers if r in sketch_names] +
+        [r for r in all_retrievers if r not in baseline_names and r not in sketch_names]
+    )
+
+    bar_colors = []
+    sketch_palette = iter(PALETTE)
+    for r in ordered:
+        if r in baseline_names:
+            bar_colors.append("#AAAAAA")
+        else:
+            bar_colors.append(next(sketch_palette, "#333333"))
+
+    x = np.arange(len(ordered))
+    fig, axes = plt.subplots(1, 4, figsize=(22, 6))
+    fig.suptitle(
+        "MinHash Sketch Retrievers vs Baseline  —  "
+        "Retrieval Time  |  Peak Memory  |  Precision vs Classic  |  Precision vs BM25",
+        fontsize=13, y=1.02,
+    )
+
+    def _bar_panel(ax, values, stds, title, ylabel, note="", ylim=None, skip_label="N/A (self)"):
+        """Draw a bar panel; NaN values (self-comparison) shown as hatched."""
+        for xi, (v, s, c) in enumerate(zip(values, stds, bar_colors)):
+            if np.isnan(v):
+                ax.bar(xi, 0.05, width=0.55, color="white", edgecolor="black",
+                       hatch="////", alpha=0.5)
+                ax.text(xi, 0.07, skip_label, ha="center", va="bottom",
+                        fontsize=6.5, color="grey", style="italic")
+            else:
+                ax.bar(xi, v, yerr=s, capsize=5, width=0.55,
+                       color=c, alpha=0.87, edgecolor="black")
+                max_v = max((vv for vv in values if not np.isnan(vv)), default=0)
+                label_y = v + s + max_v * 0.03
+                ax.text(xi, label_y, f"{v:.3f}", ha="center", va="bottom", fontsize=7.5)
+        ax.set_xticks(x)
+        ax.set_xticklabels(ordered, rotation=20, ha="right", fontsize=9)
+        ax.set_ylabel(ylabel, fontsize=10)
+        ax.set_title(f"{title}\n{note}", fontsize=10)
+        ax.grid(True, axis="y", alpha=0.3)
+        if ylim:
+            ax.set_ylim(*ylim)
+
+    # Panel 1: Retrieval time
+    lat_means = [float(results_df[results_df["retriever"] == r]["latency_s"].mean()) for r in ordered]
+    lat_stds  = [float(results_df[results_df["retriever"] == r]["latency_s"].std(ddof=0)) for r in ordered]
+    _bar_panel(axes[0], lat_means, lat_stds, "Retrieval Time", "Mean latency (s)", "↓ lower is better")
+
+    # Panel 2: Peak memory
+    mem_means = [float(results_df[results_df["retriever"] == r]["memory_mb"].mean()) for r in ordered]
+    mem_stds  = [float(results_df[results_df["retriever"] == r]["memory_mb"].std(ddof=0)) for r in ordered]
+    _bar_panel(axes[1], mem_means, mem_stds, "Peak Memory", "Mean memory (MB)", "↓ lower is better")
+
+    # Panel 3: Precision vs Classic
+    def _prec_col(col, r):
+        if col not in results_df.columns:
+            return float("nan"), 0.0
+        sub = results_df[results_df["retriever"] == r][col].dropna()
+        return (float(sub.mean()), float(sub.std(ddof=0))) if len(sub) else (float("nan"), 0.0)
+
+    classic_means = [_prec_col("vs_Classic", r)[0] for r in ordered]
+    classic_stds  = [_prec_col("vs_Classic", r)[1] for r in ordered]
+    _bar_panel(axes[2], classic_means, classic_stds,
+               "Precision vs Classic", "Fraction overlapping Classic results",
+               "↑ higher = closer to Classic", ylim=(0, 1.25))
+
+    # Panel 4: Precision vs BM25
+    bm25_means = [_prec_col("vs_BM25", r)[0] for r in ordered]
+    bm25_stds  = [_prec_col("vs_BM25", r)[1] for r in ordered]
+    _bar_panel(axes[3], bm25_means, bm25_stds,
+               "Precision vs BM25", "Fraction overlapping BM25 results",
+               "↑ higher = closer to BM25", ylim=(0, 1.25))
+
+    from matplotlib.patches import Patch
+    legend_elements = [
+        Patch(facecolor="#AAAAAA", edgecolor="black", label="Baseline retriever"),
+        Patch(facecolor=PALETTE[0], edgecolor="black", label="Sketch retriever"),
+        Patch(facecolor="white", edgecolor="black", hatch="////", label="Self (skipped)"),
+    ]
+    axes[3].legend(handles=legend_elements, fontsize=8, loc="lower right")
+
+    plt.tight_layout()
+    out = f"{save_path}/minhash_vs_baseline.png"
+    plt.savefig(out, dpi=150, bbox_inches="tight")
+    print(f"Saved → {out}")
+    plt.close()
+
+
+# ---------------------------------------------------------------------------
 # Convenience: generate all standard plots at once
 # ---------------------------------------------------------------------------
 
@@ -425,6 +636,8 @@ def generate_all_plots(
     plot_latency_vs_metric(results_df, metric=f"ndcg@{top_k}", save_path=save_path)
     plot_memory_comparison(results_df, save_path=save_path)
     plot_per_query_heatmap(results_df, metric="mrr", save_path=save_path)
+    # Focused MinHash vs Baseline comparison (time, memory, baseline precision)
+    plot_minhash_vs_baseline(results_df, save_path=save_path)
     if update_df is not None and not update_df.empty:
         plot_retriever_comparison(results_df, update_df, save_path=save_path)
 
