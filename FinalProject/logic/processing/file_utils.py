@@ -1,4 +1,5 @@
 import json
+import pickle
 from pathlib import Path
 from typing import Dict, Generator, Any
 
@@ -34,5 +35,8 @@ def load_processed_file(file_path: str) -> Any:
                 return np.load(file_path, allow_pickle=True)
             case '.joblib':
                 return joblib.load(file_path)
+            case '.pkl':
+                with open(file_path, 'rb') as file:
+                    return pickle.load(file)
     except FileNotFoundError:
         return None
