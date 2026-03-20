@@ -1,7 +1,8 @@
 from abc import ABC
 
 import numpy as np
-import pandas as pd
+import pickle as pkl
+from datasketch import MinHashLSH, MinHash
 
 from logic.processing.file_utils import load_processed_file
 from retrievers.base_min_hash_retriever import BaseMinHashRetriever
@@ -9,49 +10,23 @@ from retrievers.base_min_hash_retriever import BaseMinHashRetriever
 
 class BaseMinHashLshRetriever(BaseMinHashRetriever, ABC):
 
-    def __init__(self, min_hash_lsh_eps: 0.85, corpus_initial_size: int = 100_000):
-        super().__init__(corpus_initial_size)
+    def __init__(self, min_hash_lsh_eps: float = 0.85, corpus_initial_size: int = 100_000):
+        self.index = None
+
+        self.min_hash_lsh_eps = min_hash_lsh_eps
+        super().__init__(corpus_initial_size=corpus_initial_size)
 
     def build_corpus(self):
         self._load_minhash_corpus()
+        self.index = load_processed_file(f'{self._corpus_dir}/{self.corpus_size}_{self.min_hash_lsh_eps}.pkl')
+        if self.index is None:
+            self._fit_save_min_hash_lsh()
 
-        self.clusters = (load_processed_file(f'{self._corpus_dir}/{self.corpus_size}_{self.dbscan.eps}.npy')
-                         or self._fit_save_min_hash_lsh())
+    def _fit_save_min_hash_lsh(self):
+        self.index = MinHashLSH(threshold=1 - self.min_hash_lsh_eps)
+        with self.index.insertion_session() as session:
+            for doc_id, signature in zip(self.ids, self.signatures):
+                session.insert(doc_id, MinHash(num_perm=128, hashvalues=signature))
 
-        self.corpus_df = pd.DataFrame({'doc_id': self.ids, 'cluster': self.clusters})
-        self._compute_centroids()
-
-    def _compute_centroids(self):
-        self.centroids = {}
-        for cluster_label in np.unique(self.clusters):
-            if cluster_label == -1:
-                continue
-            mask = self.clusters == cluster_label
-            self.centroids[cluster_label] = np.mean(self.signatures[mask], axis=0)
-
-    def _fit_save_dbscan(self):
-        clusters = self._predict_clusters(self.signatures)
-        np.save(f'{self._corpus_dir}/{self.corpus_size}_{self.dbscan.eps}', arr=clusters)
-        return clusters
-
-    def _predict_clusters(self, signatures):
-        return self.dbscan.fit_predict(signatures)
-
-    def _find_best_cluster(self, query_sig):
-        if not self.centroids:
-            return None
-
-        best_cluster = None
-        best_dist = float('inf')
-        for cluster_label, centroid_sig in self.centroids.items():
-            centroid_int = np.round(centroid_sig).astype(np.uint64)
-            dist = np.sum(centroid_int != query_sig)
-            if dist < best_dist:
-                best_dist = dist
-                best_cluster = cluster_label
-        return best_cluster
-
-    def _get_cluster_doc_ids(self, cluster_label):
-        if cluster_label is None:
-            return []
-        return self.corpus_df[self.corpus_df['cluster'] == cluster_label]['doc_id'].tolist()
+        with open(f'{self._corpus_dir}/{self.corpus_size}_{self.min_hash_lsh_eps}.pkl', 'wb') as file:
+            pkl.dump(self.index, file)

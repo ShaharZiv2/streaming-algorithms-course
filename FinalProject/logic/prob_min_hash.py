@@ -1,5 +1,6 @@
 import numpy as np
 import xxhash
+from datasketch import MinHash
 
 from logic.constants import SEED
 
@@ -83,6 +84,9 @@ class ProbMinHash4:
                 i += 1
 
         self.hashvalues = result
+
+    def to_min_hash(self) -> MinHash:
+        return MinHash(num_perm=self.num_perm, hashvalues=self.hashvalues)
 
     @staticmethod
     def _get_trunc_exp(rng, limit):

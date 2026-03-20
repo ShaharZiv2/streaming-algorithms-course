@@ -1,12 +1,12 @@
-from retrievers.min_hash_retriever import MinHashRetriever
-from retrievers.prob_min_hash_retriever import ProbMinHashRetriever
 from retrievers.classic_retriever import ClassicRetriever
 from retrievers.bm25_retriever import BM25Retriever
+from retrievers.min_hash_dbscan_retriever import MinHashDbscanRetriever
+from retrievers.prob_min_hash_dbscan_retriever import ProbMinHashDbscanRetriever
 
 
 def main():
-    sketch_retriever = ProbMinHashRetriever()
-    sketch_retriever = MinHashRetriever()
+    sketch_retriever = ProbMinHashDbscanRetriever()
+    sketch_retriever = MinHashDbscanRetriever()
     classic_retriever = ClassicRetriever(top_k=10)
     bm25_retriever = BM25Retriever(top_k=10)
 

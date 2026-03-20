@@ -1,14 +1,14 @@
-from logic.constants import COLLECTION_MIN_HASH, COLLECTION_JSONL, SEED, MIN_HASH_CORPUS_DIR
+from logic.constants import COLLECTION_MIN_HASH, COLLECTION_JSONL, SEED, DBSCAN_MIN_HASH_CORPUS_DIR
 from logic.processing.file_utils import load_jsonl
 
 from logic.stemming_utils import stemmed_stop_words, StemmingTokenizer
-from retrievers.base_min_hash_retriever import BaseMinHashRetriever
+from retrievers.base_min_hash_dbscan_retriever import BaseMinHashDbscanRetriever
 import numpy as np
 from datasketch import MinHash
 from sklearn.feature_extraction.text import CountVectorizer
 
 
-class MinHashRetriever(BaseMinHashRetriever):
+class MinHashDbscanRetriever(BaseMinHashDbscanRetriever):
 
     def __init__(self, dbscan_eps: float = 0.85, corpus_initial_size: int = 100_000):
         self.vectorizer = CountVectorizer(ngram_range=(1, 2),
@@ -22,7 +22,7 @@ class MinHashRetriever(BaseMinHashRetriever):
 
     @property
     def _corpus_dir(self) -> str:
-        return MIN_HASH_CORPUS_DIR
+        return DBSCAN_MIN_HASH_CORPUS_DIR
 
     def retrieve(self, query, **kwargs):
         data = [query]
@@ -84,7 +84,7 @@ class MinHashRetriever(BaseMinHashRetriever):
         print(f"[MinHashRetriever] Running DBSCAN clustering…")
         min_samples = max(2, self.corpus_size // 100_000) if self.corpus_size >= 2 else 1
         self.dbscan.set_params(min_samples=min_samples)
-        self.clusters = self.dbscan.fit_predict(self.signatures)
+        self.clusters = self._predict_clusters(self.signatures)
 
         import pandas as pd
         self.corpus_df = pd.DataFrame({"doc_id": self.ids, "cluster": self.clusters})
@@ -121,7 +121,7 @@ class MinHashRetriever(BaseMinHashRetriever):
             self.min_hash_cursor += n
             self.corpus_size += n
 
-        self.clusters = self.dbscan.fit_predict(self.signatures)
+        self.clusters = self._predict_clusters(self.signatures)
         import pandas as pd
         self.corpus_df = pd.DataFrame({"doc_id": self.ids, "cluster": self.clusters})
         self._compute_centroids()

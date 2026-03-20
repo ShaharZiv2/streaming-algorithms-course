@@ -16,13 +16,14 @@ class BaseMinHashDbscanRetriever(BaseMinHashRetriever, ABC):
         self.clusters = None
         self.centroids = {}
         self.corpus_df = None
-        super().__init__(corpus_initial_size)
+        super().__init__(corpus_initial_size=corpus_initial_size)
 
     def build_corpus(self):
         self._load_minhash_corpus()
 
-        self.clusters = (load_processed_file(f'{self._corpus_dir}/{self.corpus_size}_{self.dbscan.eps}.npy')
-                         or self._fit_save_dbscan())
+        self.clusters = load_processed_file(f'{self._corpus_dir}/{self.corpus_size}_{self.dbscan.eps}.npy')
+        if self.clusters is None:
+            self.clusters = self._fit_save_dbscan()
 
         self.corpus_df = pd.DataFrame({'doc_id': self.ids, 'cluster': self.clusters})
         self._compute_centroids()
