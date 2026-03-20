@@ -18,6 +18,8 @@ joblib = "*"
 datasketch = "*"
 requests = "*"
 nltk = "*"
+rank-bm25 = "*"
+llama-cpp-python = "*"
 
 [build-system]
 requires = ["poetry-core"]

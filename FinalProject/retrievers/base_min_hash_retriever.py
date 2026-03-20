@@ -22,7 +22,7 @@ class BaseMinHashRetriever(BaseRetriever):
 
         min_samples = max(2, corpus_initial_size // 100_000)
         self.dbscan = DBSCAN(eps=dbscan_eps, min_samples=min_samples, metric='hamming', n_jobs=-1)
-        super().__init__()
+        super().__init__(lazy=(corpus_initial_size == 0))
 
     @property
     @abstractmethod
