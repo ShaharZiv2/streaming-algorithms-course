@@ -13,7 +13,7 @@ Retriever: BM25
   credibility_score     : 50.4267 ± 1.7976
   hallucination_flagged : 1.0000 ± 0.0000
   misinformation_flagged: 0.0000 ± 0.0000
-  latency_s             : 0.0006 ± 0.0002 s
+  latency_s             : 0.0007 ± 0.0002 s
   memory_mb             : 0.1024 ± 0.0001 MB
 
 Retriever: Classic
@@ -27,10 +27,24 @@ Retriever: Classic
   credibility_score     : 50.2133 ± 1.2889
   hallucination_flagged : 1.0000 ± 0.0000
   misinformation_flagged: 0.0000 ± 0.0000
-  latency_s             : 0.0007 ± 0.0001 s
+  latency_s             : 0.0007 ± 0.0002 s
   memory_mb             : 0.2028 ± 0.0011 MB
 
 Retriever: MinHash
+----------------------------------------
+  precision@10          : 0.0000 ± 0.0000
+  recall@10             : 0.0000 ± 0.0000
+  ndcg@10               : 0.0000 ± 0.0000
+  mrr                   : 0.0000 ± 0.0000
+  ap                    : 0.0000 ± 0.0000
+  distance_score        : 1.0000 ± 0.0000
+  credibility_score     : 50.0000 ± 0.0000
+  hallucination_flagged : 1.0000 ± 0.0000
+  misinformation_flagged: 0.0000 ± 0.0000
+  latency_s             : 0.0031 ± 0.0006 s
+  memory_mb             : 0.0188 ± 0.0003 MB
+
+Retriever: MinHashLSH
 ----------------------------------------
   precision@10          : 0.0013 ± 0.0115
   recall@10             : 0.0133 ± 0.1147
@@ -41,7 +55,7 @@ Retriever: MinHash
   credibility_score     : 50.0000 ± 0.0000
   hallucination_flagged : 1.0000 ± 0.0000
   misinformation_flagged: 0.0000 ± 0.0000
-  latency_s             : 0.0182 ± 0.0007 s
+  latency_s             : 0.0179 ± 0.0008 s
   memory_mb             : 0.0750 ± 0.0005 MB
 
 Retriever: Sketch
@@ -55,16 +69,16 @@ Retriever: Sketch
   credibility_score     : 50.0000 ± 0.0000
   hallucination_flagged : 1.0000 ± 0.0000
   misinformation_flagged: 0.0000 ± 0.0000
-  latency_s             : 0.0000 ± 0.0000 s
-  memory_mb             : 0.0000 ± 0.0000 MB
+  latency_s             : 0.0031 ± 0.0003 s
+  memory_mb             : 0.0188 ± 0.0003 MB
 
 ================================================================================
 Best Retrievers
 --------------------------------------------------------------------------------
-  Best precision@10  : MinHash  (0.0013)
-  Best recall@10     : MinHash  (0.0133)
-  Best ndcg@10       : MinHash  (0.0133)
-  Best mrr           : MinHash  (0.0133)
-  Best ap            : MinHash  (0.0133)
-  Fastest              : Sketch  (0.0000 s)
+  Best precision@10  : MinHashLSH  (0.0013)
+  Best recall@10     : MinHashLSH  (0.0133)
+  Best ndcg@10       : MinHashLSH  (0.0133)
+  Best mrr           : MinHashLSH  (0.0133)
+  Best ap            : MinHashLSH  (0.0133)
+  Fastest              : BM25  (0.0007 s)
 

@@ -128,7 +128,7 @@ class SketchRetriever(BaseRetriever):
             mask = self.clusters == cluster_label
             self.centroids[cluster_label] = np.mean(self.signatures[mask], axis=0)
 
-    def retrieve(self, query):
+    def retrieve(self, query, **kwargs):
         data = [query]
         try:
             self.vectorizer.fit_transform(data)

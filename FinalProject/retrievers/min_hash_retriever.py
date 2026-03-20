@@ -24,15 +24,7 @@ class MinHashRetriever(BaseMinHashRetriever):
     def _corpus_dir(self) -> str:
         return MIN_HASH_CORPUS_DIR
 
-    def update(self, num_updates: int = 1):
-        self.ids.extend(self.docs['doc_ids'][self.min_hash_cursor:num_updates])
-        self.signatures.extend(self.docs['signatures'][self.min_hash_cursor:num_updates])
-        self.min_hash_cursor += num_updates
-
-        self.clusters = self.dbscan.fit_predict(self.signatures)
-        self.corpus_size += num_updates
-
-    def retrieve(self, query):
+    def retrieve(self, query, **kwargs):
         data = [query]
         try:
             self.vectorizer.fit_transform(data)
@@ -66,3 +58,70 @@ class MinHashRetriever(BaseMinHashRetriever):
             sketches.append(m.hashvalues)
         np.savez_compressed(COLLECTION_MIN_HASH, doc_ids=keys, signatures=np.array(sketches))
         return np.load(COLLECTION_MIN_HASH)
+
+    def build_corpus_from_docs(self, docs: list[dict]):
+        """Build the sketch index from a pre-loaded list of {"key":…,"data":…} dicts."""
+        print(f"[MinHashRetriever] Building MinHash signatures for {len(docs)} documents…")
+        keys = []
+        sketches = []
+        for doc in docs:
+            data = [doc["data"].strip()]
+            try:
+                self.vectorizer.fit_transform(data)
+            except ValueError:
+                continue
+            ngrams = self.vectorizer.get_feature_names_out()
+            m = MinHash(num_perm=128, seed=SEED, gpu_mode="detect")
+            for gram in ngrams:
+                m.update(gram.encode("utf-8"))
+            keys.append(doc["key"])
+            sketches.append(m.hashvalues)
+
+        self.ids = keys
+        self.signatures = np.array(sketches)
+        self.corpus_size = len(keys)
+
+        print(f"[MinHashRetriever] Running DBSCAN clustering…")
+        min_samples = max(2, self.corpus_size // 100_000) if self.corpus_size >= 2 else 1
+        self.dbscan.set_params(min_samples=min_samples)
+        self.clusters = self.dbscan.fit_predict(self.signatures)
+
+        import pandas as pd
+        self.corpus_df = pd.DataFrame({"doc_id": self.ids, "cluster": self.clusters})
+        self._compute_centroids()
+        self.min_hash_cursor = len(keys)
+        print(f"[MinHashRetriever] Index ready ({len(keys)} docs, "
+              f"{len(self.centroids)} clusters).")
+
+    def update(self, document: dict | int = 1):
+        """Append a single document and re-cluster.
+
+        Accepts either a {"key":…,"data":…} dict (benchmark streaming interface)
+        or the legacy integer form.
+        """
+        if isinstance(document, dict):
+            data = [document["data"].strip()]
+            try:
+                self.vectorizer.fit_transform(data)
+            except ValueError:
+                return
+            ngrams = self.vectorizer.get_feature_names_out()
+            m = MinHash(num_perm=128, seed=SEED, gpu_mode="detect")
+            for gram in ngrams:
+                m.update(gram.encode("utf-8"))
+            self.ids.append(document["key"])
+            new_sig = m.hashvalues.reshape(1, -1)
+            self.signatures = np.vstack([self.signatures, new_sig])
+        else:
+            # legacy integer path
+            n = document
+            self.ids.extend(self.docs['doc_ids'][self.min_hash_cursor:self.min_hash_cursor + n])
+            new_sigs = self.docs['signatures'][self.min_hash_cursor:self.min_hash_cursor + n]
+            self.signatures = np.vstack([self.signatures, new_sigs])
+            self.min_hash_cursor += n
+            self.corpus_size += n
+
+        self.clusters = self.dbscan.fit_predict(self.signatures)
+        import pandas as pd
+        self.corpus_df = pd.DataFrame({"doc_id": self.ids, "cluster": self.clusters})
+        self._compute_centroids()

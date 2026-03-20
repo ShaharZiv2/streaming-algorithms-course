@@ -35,6 +35,7 @@ from logic.constants import QRELS_JSONL, COLLECTION_JSONL
 from retrievers.base_retriever import BaseRetriever
 from retrievers.bm25_retriever import BM25Retriever
 from retrievers.classic_retriever import ClassicRetriever
+from retrievers.min_hash_retriever import MinHashRetriever
 from retrievers.minhashLSH_retriever import MinHashLSHRetriever
 
 EVAL_DIR = "datasets/evaluations"
@@ -134,6 +135,13 @@ def run_scaling_experiment(
             retrievers["BM25"] = bm25
         except Exception as e:
             print(f"  BM25Retriever build failed: {e}")
+
+        try:
+            mh = MinHashRetriever(dbscan_eps=0.85, corpus_initial_size=0)
+            mh.build_corpus_from_docs(corpus_docs)
+            retrievers["MinHash"] = mh
+        except Exception as e:
+            print(f"  MinHashRetriever build failed: {e}")
 
         bench_df = run_benchmark(retrievers, size_queries, size_qrels,
                                  top_k=top_k, max_queries=len(size_queries))
@@ -429,9 +437,16 @@ def main() -> None:
     try:
         minhash = MinHashLSHRetriever(num_initial_documents=0, top_k=args.top_k)
         minhash.build_corpus_from_docs(corpus_docs)
-        retrievers["MinHash"] = minhash
+        retrievers["MinHashLSH"] = minhash
     except Exception as e:
         print(f"  MinHashLSHRetriever build failed (skipping): {e}")
+
+    try:
+        minhash_dbscan = MinHashRetriever(dbscan_eps=0.85, corpus_initial_size=0)
+        minhash_dbscan.build_corpus_from_docs(corpus_docs)
+        retrievers["MinHash"] = minhash_dbscan
+    except Exception as e:
+        print(f"  MinHashRetriever build failed (skipping): {e}")
 
     if not args.skip_sketch:
         try:
@@ -511,6 +526,11 @@ def main() -> None:
         return r
 
     def _make_minhash(docs, k):
+        r = MinHashRetriever(dbscan_eps=0.85, corpus_initial_size=0)
+        r.build_corpus_from_docs(docs)
+        return r
+
+    def _make_minhash_lsh(docs, k):
         r = _MHR(num_initial_documents=0, top_k=k)
         r.build_corpus_from_docs(docs)
         return r
@@ -524,6 +544,7 @@ def main() -> None:
         "Classic (O(n))": _make_classic,
         "BM25 (O(n))": _make_bm25,
         "MinHash (sub-linear)": _make_minhash,
+        "MinHashLSH (sub-linear)": _make_minhash_lsh,
         "Sketch (sub-linear)": _make_sketch,
     }
     complexity_sizes = [100, 500, 1000, 2000, 5000, min(len(corpus_docs), 10000)]
