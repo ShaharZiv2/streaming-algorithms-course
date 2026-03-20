@@ -17,6 +17,18 @@ from logic.constants import (
 
 FIVE_MB = 5 * 1024 * 1024
 
+# Pretend to be a normal browser (some CDNs / hosts reject bare Python clients).
+_BROWSER_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/131.0.0.0 Safari/537.36"
+    ),
+    "Accept": "*/*",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Connection": "keep-alive",
+}
+
 # All dataset directory paths (folders only) from constants
 _OUTPUT_DIRS = (
     TSV_FILES_DIR,
@@ -45,7 +57,7 @@ def download_data(url: str, destination: str, skip_exists):
     with tempfile.NamedTemporaryFile(suffix=".tar.gz", delete=False) as tmp:
         tmp_path = tmp.name
     try:
-        resp = requests.get(url, stream=True)
+        resp = requests.get(url, stream=True, headers=_BROWSER_HEADERS)
         resp.raise_for_status()
         downloaded = 0
         start_time = time.perf_counter()
