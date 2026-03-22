@@ -4,53 +4,53 @@ RETRIEVER EVALUATION SUMMARY  –  MS MARCO
 
 Retriever: BM25
 ----------------------------------------
-  precision@10          : 0.0000 ± 0.0000
-  recall@10             : 0.0000 ± 0.0000
-  ndcg@10               : 0.0000 ± 0.0000
-  mrr                   : 0.0000 ± 0.0000
-  ap                    : 0.0000 ± 0.0000
-  baseline_precision    : 0.5627 ± 0.2273
-  vs_Classic            : 0.5627 ± 0.2273
+  precision@10          : 0.0006 ± 0.0077
+  recall@10             : 0.0045 ± 0.0641
+  ndcg@10               : 0.0018 ± 0.0264
+  mrr                   : 0.0012 ± 0.0168
+  ap                    : 0.0009 ± 0.0156
+  baseline_precision    : 0.5522 ± 0.2296
+  vs_Classic            : 0.5522 ± 0.2296
   vs_BM25               : nan ± nan
   distance_score        : 1.0000 ± 0.0000
-  credibility_score     : 50.4267 ± 1.7976
+  credibility_score     : 50.2900 ± 1.7105
   hallucination_flagged : 1.0000 ± 0.0000
-  misinformation_flagged: 0.0000 ± 0.0000
-  latency_s             : 0.0007 ± 0.0003 s
+  misinformation_flagged: 0.0020 ± 0.0447
+  latency_s             : 0.0007 ± 0.0002 s
   memory_mb             : 0.1024 ± 0.0001 MB
 
 Retriever: Classic
 ----------------------------------------
-  precision@10          : 0.0000 ± 0.0000
-  recall@10             : 0.0000 ± 0.0000
-  ndcg@10               : 0.0000 ± 0.0000
-  mrr                   : 0.0000 ± 0.0000
-  ap                    : 0.0000 ± 0.0000
-  baseline_precision    : 0.5627 ± 0.2273
+  precision@10          : 0.0002 ± 0.0045
+  recall@10             : 0.0005 ± 0.0112
+  ndcg@10               : 0.0003 ± 0.0062
+  mrr                   : 0.0003 ± 0.0074
+  ap                    : 0.0001 ± 0.0019
+  baseline_precision    : 0.5522 ± 0.2296
   vs_Classic            : nan ± nan
-  vs_BM25               : 0.5627 ± 0.2273
-  distance_score        : 0.8716 ± 0.0538
-  credibility_score     : 50.2133 ± 1.2889
-  hallucination_flagged : 1.0000 ± 0.0000
+  vs_BM25               : 0.5522 ± 0.2296
+  distance_score        : 0.8653 ± 0.0523
+  credibility_score     : 50.2560 ± 1.4080
+  hallucination_flagged : 0.9980 ± 0.0447
   misinformation_flagged: 0.0000 ± 0.0000
-  latency_s             : 0.0008 ± 0.0001 s
-  memory_mb             : 0.2028 ± 0.0010 MB
+  latency_s             : 0.0007 ± 0.0002 s
+  memory_mb             : 0.2027 ± 0.0010 MB
 
-Retriever: MinHash
+Retriever: MinHashDBSCAN
 ----------------------------------------
   precision@10          : 0.0000 ± 0.0000
   recall@10             : 0.0000 ± 0.0000
   ndcg@10               : 0.0000 ± 0.0000
   mrr                   : 0.0000 ± 0.0000
   ap                    : 0.0000 ± 0.0000
-  baseline_precision    : 0.0267 ± 0.1389
-  vs_Classic            : 0.0133 ± 0.1147
-  vs_BM25               : 0.0267 ± 0.1389
+  baseline_precision    : 0.0420 ± 0.1823
+  vs_Classic            : 0.0230 ± 0.1377
+  vs_BM25               : 0.0350 ± 0.1652
   distance_score        : 1.0000 ± 0.0000
   credibility_score     : 50.0000 ± 0.0000
   hallucination_flagged : 1.0000 ± 0.0000
   misinformation_flagged: 0.0000 ± 0.0000
-  latency_s             : 0.0031 ± 0.0009 s
+  latency_s             : 0.0033 ± 0.0011 s
   memory_mb             : 0.0188 ± 0.0003 MB
 
 Retriever: MinHashLSH
@@ -60,41 +60,58 @@ Retriever: MinHashLSH
   ndcg@10               : 0.0000 ± 0.0000
   mrr                   : 0.0000 ± 0.0000
   ap                    : 0.0000 ± 0.0000
-  baseline_precision    : 0.0680 ± 0.1489
-  vs_Classic            : 0.0613 ± 0.1478
-  vs_BM25               : 0.0600 ± 0.1470
+  baseline_precision    : 0.1652 ± 0.3430
+  vs_Classic            : 0.1438 ± 0.3246
+  vs_BM25               : 0.1258 ± 0.3047
   distance_score        : 1.0000 ± 0.0000
   credibility_score     : 50.0000 ± 0.0000
   hallucination_flagged : 1.0000 ± 0.0000
   misinformation_flagged: 0.0000 ± 0.0000
-  latency_s             : 0.0025 ± 0.0002 s
-  memory_mb             : 0.3136 ± 0.0000 MB
+  latency_s             : 0.0027 ± 0.0003 s
+  memory_mb             : 0.0189 ± 0.0003 MB
 
-Retriever: ProbMinHash
+Retriever: ProbMinHashDBSCAN
 ----------------------------------------
   precision@10          : 0.0000 ± 0.0000
   recall@10             : 0.0000 ± 0.0000
   ndcg@10               : 0.0000 ± 0.0000
   mrr                   : 0.0000 ± 0.0000
   ap                    : 0.0000 ± 0.0000
-  baseline_precision    : 0.0667 ± 0.2357
-  vs_Classic            : 0.0067 ± 0.0573
-  vs_BM25               : 0.0667 ± 0.2357
+  baseline_precision    : 0.0470 ± 0.1931
+  vs_Classic            : 0.0170 ± 0.1059
+  vs_BM25               : 0.0420 ± 0.1850
   distance_score        : 1.0000 ± 0.0000
   credibility_score     : 50.0000 ± 0.0000
   hallucination_flagged : 1.0000 ± 0.0000
   misinformation_flagged: 0.0000 ± 0.0000
-  latency_s             : 0.0066 ± 0.0026 s
-  memory_mb             : 0.0152 ± 0.0012 MB
+  latency_s             : 0.0072 ± 0.0027 s
+  memory_mb             : 0.0155 ± 0.0006 MB
+
+Retriever: ProbMinHashLSH
+----------------------------------------
+  precision@10          : 0.0000 ± 0.0000
+  recall@10             : 0.0000 ± 0.0000
+  ndcg@10               : 0.0000 ± 0.0000
+  mrr                   : 0.0000 ± 0.0000
+  ap                    : 0.0000 ± 0.0000
+  baseline_precision    : 0.2594 ± 0.4076
+  vs_Classic            : 0.1822 ± 0.3467
+  vs_BM25               : 0.2355 ± 0.3931
+  distance_score        : 1.0000 ± 0.0000
+  credibility_score     : 50.0000 ± 0.0000
+  hallucination_flagged : 1.0000 ± 0.0000
+  misinformation_flagged: 0.0000 ± 0.0000
+  latency_s             : 0.0088 ± 0.0036 s
+  memory_mb             : 0.0226 ± 0.0012 MB
 
 ================================================================================
 Best Retrievers
 --------------------------------------------------------------------------------
-  Best precision@10  : BM25  (0.0000)
-  Best recall@10     : BM25  (0.0000)
-  Best ndcg@10       : BM25  (0.0000)
-  Best mrr           : BM25  (0.0000)
-  Best ap            : BM25  (0.0000)
+  Best precision@10  : BM25  (0.0006)
+  Best recall@10     : BM25  (0.0045)
+  Best ndcg@10       : BM25  (0.0018)
+  Best mrr           : BM25  (0.0012)
+  Best ap            : BM25  (0.0009)
   Fastest              : BM25  (0.0007 s)
 
 ================================================================================
@@ -105,20 +122,23 @@ Focus: Retrieval Time  |  Peak Memory  |  Prec vs Classic  |  Prec vs BM25
   Retriever              Latency (s)     Memory (MB)    vs Classic       vs BM25
   ------------------------------------------------------------------------------
   --- Baseline ---
-  BM25                 0.0007±0.0003   0.1024±0.0001     0.563±0.227      N/A (self)
-  Classic              0.0008±0.0001   0.2028±0.0010      N/A (self)     0.563±0.227
+  BM25                 0.0007±0.0002   0.1024±0.0001     0.552±0.230      N/A (self)
+  Classic              0.0007±0.0002   0.2027±0.0010      N/A (self)     0.552±0.230
   --- Sketch ---
-  MinHash              0.0031±0.0009   0.0188±0.0003     0.013±0.115     0.027±0.139
-  MinHashLSH           0.0025±0.0002   0.3136±0.0000     0.061±0.148     0.060±0.147
-  ProbMinHash          0.0066±0.0026   0.0152±0.0012     0.007±0.057     0.067±0.236
+  MinHashDBSCAN        0.0033±0.0011   0.0188±0.0003     0.023±0.138     0.035±0.165
+  MinHashLSH           0.0027±0.0003   0.0189±0.0003     0.144±0.325     0.126±0.305
+  ProbMinHashDBSCAN    0.0072±0.0027   0.0155±0.0006     0.017±0.106     0.042±0.185
+  ProbMinHashLSH       0.0088±0.0036   0.0226±0.0012     0.182±0.347     0.235±0.393
 
   Ratios vs BM25:
-    MinHash         : speed-up=0.22x  mem_ratio=0.18x  prec_vs_BM25=0.0267
-    MinHashLSH      : speed-up=0.27x  mem_ratio=3.06x  prec_vs_BM25=0.0600
-    ProbMinHash     : speed-up=0.10x  mem_ratio=0.15x  prec_vs_BM25=0.0667
+    MinHashDBSCAN   : speed-up=0.20x  mem_ratio=0.18x  prec_vs_BM25=0.0350
+    MinHashLSH      : speed-up=0.25x  mem_ratio=0.18x  prec_vs_BM25=0.1258
+    ProbMinHashDBSCAN: speed-up=0.09x  mem_ratio=0.15x  prec_vs_BM25=0.0420
+    ProbMinHashLSH  : speed-up=0.08x  mem_ratio=0.22x  prec_vs_BM25=0.2355
 
   Ratios vs Classic:
-    MinHash         : speed-up=0.25x  mem_ratio=0.09x  prec_vs_Classic=0.0133
-    MinHashLSH      : speed-up=0.31x  mem_ratio=1.55x  prec_vs_Classic=0.0613
-    ProbMinHash     : speed-up=0.12x  mem_ratio=0.08x  prec_vs_Classic=0.0067
+    MinHashDBSCAN   : speed-up=0.22x  mem_ratio=0.09x  prec_vs_Classic=0.0230
+    MinHashLSH      : speed-up=0.26x  mem_ratio=0.09x  prec_vs_Classic=0.1438
+    ProbMinHashDBSCAN: speed-up=0.10x  mem_ratio=0.08x  prec_vs_Classic=0.0170
+    ProbMinHashLSH  : speed-up=0.08x  mem_ratio=0.11x  prec_vs_Classic=0.1822
 

@@ -30,15 +30,16 @@ from evaluation.plots import (
     generate_all_plots, plot_scaling_latency, plot_scaling_metrics,
     plot_update_times, plot_llm_metrics,
     plot_distance_scores, plot_credibility_scores, plot_complexity_curve,
-    plot_sketch_vs_baseline, plot_minhash_vs_baseline,
+    plot_sketch_vs_baseline, plot_minhash_vs_baseline, plot_dim_reduction_tradeoff,
 )
 from logic.constants import QRELS_JSONL, COLLECTION_JSONL
 from retrievers.base_retriever import BaseRetriever
 from retrievers.bm25_retriever import BM25Retriever
 from retrievers.classic_retriever import ClassicRetriever
-from retrievers.min_hash_retriever import MinHashRetriever
-from retrievers.minhashLSH_retriever import MinHashLSHRetriever
-from retrievers.prob_min_hash_retriever import ProbMinHashRetriever
+from retrievers.min_hash_dbscan_retriever import MinHashDbscanRetriever
+from retrievers.min_hash_lsh_retriever import MinHashLshRetriever
+from retrievers.prob_min_hash_dbscan_retriever import ProbMinHashDbscanRetriever
+from retrievers.prob_min_hash_lsh_retriever import ProbMinHashLshRetriever
 
 EVAL_DIR = "datasets/evaluations"
 TOP_K = 10
@@ -104,7 +105,7 @@ def generate_summary_report(results_df: pd.DataFrame, top_k: int = TOP_K, save_p
         # ------------------------------------------------------------------
         # Focused: MinHash family vs Baseline (the 3 core comparison metrics)
         # ------------------------------------------------------------------
-        SKETCH_NAMES = ("MinHash", "MinHashLSH", "ProbMinHash")
+        SKETCH_NAMES = ("MinHashDBSCAN", "MinHashLSH", "ProbMinHashDBSCAN", "ProbMinHashLSH")
         BASELINE_NAMES = ("Classic", "BM25")
         sketch_retrievers  = [r for r in retrievers if r in SKETCH_NAMES]
         baseline_retrievers = [r for r in retrievers if r in BASELINE_NAMES]
@@ -201,11 +202,11 @@ def run_scaling_experiment(
             print(f"  BM25Retriever build failed: {e}")
 
         try:
-            mh = MinHashRetriever(dbscan_eps=0.85, corpus_initial_size=0)
+            mh = MinHashDbscanRetriever(dbscan_eps=0.85, corpus_initial_size=0)
             mh.build_corpus_from_docs(corpus_docs)
-            retrievers["MinHash"] = mh
+            retrievers["MinHashDBSCAN"] = mh
         except Exception as e:
-            print(f"  MinHashRetriever build failed: {e}")
+            print(f"  MinHashDbscanRetriever build failed: {e}")
 
         bench_df = run_benchmark(retrievers, size_queries, size_qrels,
                                  top_k=top_k, max_queries=len(size_queries))
@@ -337,6 +338,277 @@ def run_llm_evaluation(
 # Main
 # ---------------------------------------------------------------------------
 
+
+
+# ---------------------------------------------------------------------------
+# Dimensionality Reduction Experiment
+# ---------------------------------------------------------------------------
+
+def run_dim_reduction_experiment(
+    corpus_docs: list[dict],
+    eval_queries: list[dict],
+    eval_qrels: dict[str, set[str]],
+    baseline_retrievers: dict,          # pre-built Classic + BM25
+    num_perms: list[int] | None = None,
+    top_k: int = TOP_K,
+    n_jaccard_pairs: int = 500,
+) -> pd.DataFrame:
+    """Rebuild MinHash/ProbMinHash retrievers at each num_perm and measure tradeoffs.
+
+    For each num_perm value, this function:
+      1. Computes the true Jaccard similarity for n_jaccard_pairs random document pairs
+         using the full vocabulary (exact ground truth).
+      2. Rebuilds MinHashLSH and ProbMinHashLSH with that num_perm.
+      3. Estimates Jaccard via MinHash dot product (hashvalues agreement fraction).
+      4. Records: jaccard_error, baseline precision vs BM25, latency, memory/doc.
+
+    This directly shows the dimension→accuracy→speed tradeoff that is the core
+    theoretical contribution of MinHash sketching as dimensionality reduction.
+
+    Parameters
+    ----------
+    corpus_docs        : list of {"key": str, "data": str} dicts (same as main eval)
+    eval_queries       : list of {"key": str, "data": str} query dicts
+    eval_qrels         : dict of qid → set of relevant passage IDs
+    baseline_retrievers: dict with keys "BM25" and "Classic" already built
+    num_perms          : sketch dimensions to sweep; default [16, 32, 64, 128, 256, 512]
+    top_k              : retrieval depth for benchmark
+    n_jaccard_pairs    : number of random doc pairs to measure Jaccard error on
+
+    Returns
+    -------
+    DataFrame with columns: retriever, num_perm, jaccard_error, prec_vs_bm25,
+                             latency_s, memory_mb_per_doc, vocab_dim, reduction_factor
+    """
+    import random
+    import numpy as np
+    from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+    from datasketch import MinHash, MinHashLSH
+    from logic.stemming_utils import stemmed_stop_words, StemmingTokenizer
+    from logic.constants import SEED
+    from logic.prob_min_hash import ProbMinHash4
+    from evaluation.benchmark import run_benchmark
+
+    if num_perms is None:
+        num_perms = [16, 32, 64, 128, 256, 512]
+
+    texts = [d["data"].strip() for d in corpus_docs]
+    doc_ids = [d["key"] for d in corpus_docs]
+    n_docs = len(texts)
+
+    print(f"\n[dim_reduction] Corpus: {n_docs} docs, sweeping num_perm={num_perms}")
+
+    # ------------------------------------------------------------------
+    # Step 1: Compute exact Jaccard ground truth (full TF-IDF vocabulary)
+    # for n_jaccard_pairs random pairs — this is the reference we compare
+    # sketches against at each num_perm level.
+    # ------------------------------------------------------------------
+    print(f"  Building exact vocab for Jaccard ground truth…")
+    exact_vec = CountVectorizer(
+        ngram_range=(1, 2),
+        tokenizer=StemmingTokenizer(),
+        stop_words=stemmed_stop_words(),
+        binary=True,
+    )
+    exact_mat = exact_vec.fit_transform(texts)   # (n_docs × vocab), binary sparse
+    vocab_dim = exact_mat.shape[1]
+    print(f"  Vocabulary dimension: {vocab_dim:,} features")
+
+    rng = random.Random(SEED)
+    pair_indices = [(rng.randint(0, n_docs - 1), rng.randint(0, n_docs - 1))
+                    for _ in range(n_jaccard_pairs)]
+    # Filter out same-doc pairs
+    pair_indices = [(i, j) for i, j in pair_indices if i != j][:n_jaccard_pairs]
+
+    def _exact_jaccard(i: int, j: int) -> float:
+        a = exact_mat[i]
+        b = exact_mat[j]
+        inter = float(a.minimum(b).sum())
+        union = float(a.maximum(b).sum())
+        return inter / union if union > 0 else 0.0
+
+    print(f"  Computing {len(pair_indices)} exact Jaccard pairs…")
+    exact_jaccards = [_exact_jaccard(i, j) for i, j in pair_indices]
+
+    # ------------------------------------------------------------------
+    # Step 2: Also build TF-IDF for ProbMinHash ground truth
+    # ------------------------------------------------------------------
+    tfidf_vec = TfidfVectorizer(
+        ngram_range=(1, 2),
+        tokenizer=StemmingTokenizer(),
+        stop_words=stemmed_stop_words(),
+    )
+    tfidf_mat = tfidf_vec.fit_transform(texts)
+
+    # Pre-compute BM25 baseline results for prec_vs_bm25 calculation
+    bm25_results: dict[str, list[str]] = {}
+    if "BM25" in baseline_retrievers:
+        bm25_ret = baseline_retrievers["BM25"]
+        for q in eval_queries:
+            try:
+                res = bm25_ret.retrieve(q["data"].strip(), top_k=top_k)
+                if res and isinstance(res[0], tuple):
+                    bm25_results[q["key"]] = [d for d, _ in res]
+                else:
+                    bm25_results[q["key"]] = list(res)
+            except Exception:
+                bm25_results[q["key"]] = []
+
+    rows = []
+
+    for num_perm in num_perms:
+        print(f"\n  [num_perm={num_perm}] Building MinHash + ProbMinHash signatures…")
+
+        # --- MinHash signatures (CountVectorizer n-grams) ---
+        mh_sigs = []
+        for text in texts:
+            try:
+                data = [text]
+                cv = CountVectorizer(
+                    ngram_range=(1, 2),
+                    tokenizer=StemmingTokenizer(),
+                    stop_words=stemmed_stop_words(),
+                )
+                cv.fit_transform(data)
+                ngrams = cv.get_feature_names_out()
+                m = MinHash(num_perm=num_perm, seed=SEED)
+                for gram in ngrams:
+                    m.update(gram.encode("utf-8"))
+                mh_sigs.append(m.hashvalues.copy())
+            except Exception:
+                mh_sigs.append(np.zeros(num_perm, dtype=np.uint64))
+        mh_sigs = np.array(mh_sigs, dtype=np.float64)
+
+        # --- ProbMinHash signatures (TF-IDF weighted) ---
+        pmh_sigs = []
+        for i in range(n_docs):
+            start, end = tfidf_mat.indptr[i], tfidf_mat.indptr[i + 1]
+            keys = tfidf_mat.indices[start:end]
+            weights = tfidf_mat.data[start:end]
+            pmh = ProbMinHash4(num_perm=num_perm, seed=SEED)
+            if len(keys) > 0:
+                pmh.fit(keys, weights)
+                pmh_sigs.append(np.array(pmh.hashvalues, dtype=np.float64))
+            else:
+                pmh_sigs.append(np.zeros(num_perm, dtype=np.float64))
+        pmh_sigs = np.array(pmh_sigs, dtype=np.float64)
+
+        # --- Jaccard estimation error ---
+        # MinHash estimated Jaccard = fraction of matching hash values
+        mh_estimated = [
+            float(np.mean(mh_sigs[i] == mh_sigs[j]))
+            for i, j in pair_indices
+        ]
+        mh_errors = [abs(est - exact) for est, exact in zip(mh_estimated, exact_jaccards)]
+        mh_jaccard_error = float(np.mean(mh_errors))
+
+        pmh_estimated = [
+            float(np.mean(pmh_sigs[i] == pmh_sigs[j]))
+            for i, j in pair_indices
+        ]
+        pmh_errors = [abs(est - exact) for est, exact in zip(pmh_estimated, exact_jaccards)]
+        pmh_jaccard_error = float(np.mean(pmh_errors))
+
+        # --- Memory per doc ---
+        # Each signature is num_perm × 8 bytes (uint64)
+        bytes_per_doc = num_perm * 8
+        mb_per_doc = bytes_per_doc / (1024 ** 2)
+
+        # --- Build LSH index and measure retrieval latency + baseline precision ---
+        for retriever_name, sigs, jaccard_error in [
+            ("MinHashLSH", mh_sigs, mh_jaccard_error),
+            ("ProbMinHashLSH", pmh_sigs, pmh_jaccard_error),
+        ]:
+            print(f"    Building {retriever_name} index (threshold=0.15)…")
+            # Build LSH index
+            lsh_index = MinHashLSH(threshold=0.15, num_perm=num_perm)
+            with lsh_index.insertion_session() as session:
+                for doc_id, sig in zip(doc_ids, sigs):
+                    try:
+                        mh_obj = MinHash(num_perm=num_perm)
+                        mh_obj.hashvalues = sig.astype(np.uint64)
+                        session.insert(doc_id, mh_obj)
+                    except Exception:
+                        pass
+
+            # Measure retrieval latency + baseline precision on eval queries
+            import tracemalloc
+            latencies = []
+            precisions_vs_bm25 = []
+
+            n_eval = min(len(eval_queries), 100)  # cap at 100 queries for speed
+            for q in eval_queries[:n_eval]:
+                query_text = q["data"].strip()
+                qid = q["key"]
+
+                # Build query MinHash
+                if retriever_name == "MinHashLSH":
+                    try:
+                        cv = CountVectorizer(
+                            ngram_range=(1, 2),
+                            tokenizer=StemmingTokenizer(),
+                            stop_words=stemmed_stop_words(),
+                        )
+                        cv.fit_transform([query_text])
+                        ngrams = cv.get_feature_names_out()
+                        q_mh = MinHash(num_perm=num_perm, seed=SEED)
+                        for gram in ngrams:
+                            q_mh.update(gram.encode("utf-8"))
+                    except Exception:
+                        q_mh = MinHash(num_perm=num_perm, seed=SEED)
+                else:  # ProbMinHashLSH
+                    try:
+                        q_vec = tfidf_vec.transform([query_text])
+                        q_keys = q_vec[0].indices
+                        q_weights = q_vec[0].data
+                        pmh_q = ProbMinHash4(num_perm=num_perm, seed=SEED)
+                        if len(q_keys) > 0:
+                            pmh_q.fit(q_keys, q_weights)
+                        q_mh = MinHash(num_perm=num_perm)
+                        q_mh.hashvalues = np.array(pmh_q.hashvalues, dtype=np.uint64)
+                    except Exception:
+                        q_mh = MinHash(num_perm=num_perm, seed=SEED)
+
+                # Time the query
+                tracemalloc.start()
+                t0 = time.perf_counter()
+                try:
+                    retrieved = lsh_index.query(q_mh)
+                except Exception:
+                    retrieved = []
+                elapsed = time.perf_counter() - t0
+                tracemalloc.stop()
+                latencies.append(elapsed)
+
+                # Baseline precision vs BM25
+                bm25_res = bm25_results.get(qid, [])
+                if retrieved and bm25_res:
+                    bm25_set = set(bm25_res)
+                    prec = sum(1 for d in retrieved if d in bm25_set) / len(retrieved)
+                else:
+                    prec = 0.0
+                precisions_vs_bm25.append(prec)
+
+            row = {
+                "retriever":        retriever_name,
+                "num_perm":         num_perm,
+                "vocab_dim":        vocab_dim,
+                "reduction_factor": round(vocab_dim / num_perm, 1),
+                "jaccard_error":    jaccard_error,
+                "prec_vs_bm25":     float(np.mean(precisions_vs_bm25)),
+                "latency_s":        float(np.mean(latencies)),
+                "memory_mb_per_doc": mb_per_doc,
+            }
+            rows.append(row)
+            print(f"      jaccard_error={jaccard_error:.4f}  "
+                  f"prec_vs_bm25={row['prec_vs_bm25']:.4f}  "
+                  f"latency={row['latency_s']*1000:.2f}ms  "
+                  f"mem={mb_per_doc*1024:.2f}KB/doc  "
+                  f"reduction={row['reduction_factor']}×")
+
+    return pd.DataFrame(rows)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Evaluate FinalProject retrievers")
     parser.add_argument(
@@ -368,7 +640,53 @@ def parse_args() -> argparse.Namespace:
         "--llm", action="store_true",
         help="Run LLM evaluation (TinyLlama)"
     )
+    parser.add_argument(
+        "--dim-reduction", action="store_true",
+        help="Run dimensionality reduction tradeoff experiment (vary num_perm)"
+    )
+    parser.add_argument(
+        "--dim-reduction-perms", type=int, nargs="+",
+        default=[16, 32, 64, 128, 256, 512],
+        help="num_perm values to sweep in the dim-reduction experiment (default: 16 32 64 128 256 512)"
+    )
     return parser.parse_args()
+
+
+def _fetch_passages_by_id(
+    collection_path: str,
+    target_ids: set[str],
+) -> dict[str, str]:
+    """Fetch specific passages from collection.jsonl by their numeric ID.
+
+    MS MARCO collection.jsonl has key == line_number (0-indexed).
+    We do a single forward scan collecting every hit — no early break so all
+    passages within the file are reachable regardless of ID magnitude.
+
+    Returns dict: passage_id -> text
+    """
+    import json as _json
+
+    if not target_ids:
+        return {}
+
+    target_set = set(target_ids)
+    found: dict[str, str] = {}
+
+    with open(collection_path, "r", encoding="utf-8") as f:
+        for line in f:
+            # Fast key extraction without full JSON parse on non-target lines
+            # Collection format: {"key": "N", "data": "..."}
+            try:
+                obj = _json.loads(line)
+                key = obj["key"]
+                if key in target_set:
+                    found[key] = obj["data"].strip()
+                    if len(found) == len(target_set):
+                        break
+            except Exception:
+                pass
+
+    return found
 
 
 def build_evaluation_corpus(
@@ -376,16 +694,20 @@ def build_evaluation_corpus(
     queries: list[dict],
     corpus_size: int,
     max_queries: int,
+    max_passage_id: int = 500_000,
 ) -> tuple[list[dict[str, str]], dict[str, set[str]], list[dict]]:
     """Build a realistic evaluation corpus with guaranteed relevant passage coverage.
 
+    The local MS MARCO collection contains passages 0–500,000. Qrels reference
+    passage IDs up to ~8.8M, so we pre-filter to queries whose relevant passages
+    fall within the local collection before doing anything else.
+
     Strategy:
-      1. Take the first `max_queries` queries that have qrel entries.
-      2. Collect their relevant passage IDs (must be in corpus).
-      3. Fill remaining corpus slots with OTHER qrel passage IDs as topically
-         coherent distractors (much harder than random padding).
-      4. Scan the collection once to load all needed passages.
-      5. Filter to queries whose relevant passage was actually found locally.
+      1. Pre-filter qrels to passage IDs ≤ max_passage_id (local collection range).
+      2. Take the first `max_queries` queries that have locally-reachable relevant passages.
+      3. Collect those relevant passage IDs (must be in corpus).
+      4. Fill remaining corpus slots with other in-range qrel passages as distractors.
+      5. Single forward scan of the collection to load all target passages.
 
     Returns
     -------
@@ -393,52 +715,55 @@ def build_evaluation_corpus(
     filtered_qrels   : qrels restricted to queries with local coverage
     filtered_queries : queries restricted to those with local coverage
     """
-    from logic.processing.file_utils import load_jsonl
+    # 1. Pre-filter qrels to locally available passage IDs
+    local_qrels: dict[str, set[str]] = {}
+    for qid, pids in qrels.items():
+        local_pids = {p for p in pids if int(p) <= max_passage_id}
+        if local_pids:
+            local_qrels[qid] = local_pids
 
-    # 1. Eval query pool
-    eval_queries_pool = [q for q in queries if q["key"] in qrels][:max_queries]
+    print(f"  Queries with locally-available relevant passages: "
+          f"{len(local_qrels)}/{len(qrels)} "
+          f"(collection covers passages 0–{max_passage_id:,})")
 
-    # 2. Relevant passage IDs for eval queries (priority — must be in corpus)
+    # 2. Eval query pool — queries that have local coverage
+    eval_queries_pool = [q for q in queries if q["key"] in local_qrels][:max_queries]
+
+    # 3. Relevant passage IDs for eval queries
     priority_ids: set[str] = set()
     for q in eval_queries_pool:
-        priority_ids.update(qrels[q["key"]])
+        priority_ids.update(local_qrels[q["key"]])
 
-    # 3. Distractor pool: all other qrel passages not in priority set
+    # 4. Distractor pool: other in-range qrel passages
     distractor_ids: set[str] = set()
-    for doc_ids in qrels.values():
-        distractor_ids.update(doc_ids)
+    for pids in local_qrels.values():
+        distractor_ids.update(pids)
     distractor_ids -= priority_ids
 
-    # Combined target: priority first, then distractors up to corpus_size
     n_distractors = max(0, corpus_size - len(priority_ids))
-    target_ids = priority_ids | set(sorted(distractor_ids)[:n_distractors])
+    sorted_distractors = sorted(distractor_ids, key=lambda x: int(x))[:n_distractors]
+    target_ids = priority_ids | set(sorted_distractors)
 
-    print(f"  Target corpus: {len(priority_ids)} relevant + {min(n_distractors, len(distractor_ids))} distractor passages")
+    print(f"  Target corpus: {len(priority_ids)} relevant + {len(sorted_distractors)} distractor passages")
 
-    # 4. Single pass over collection to load all target passages
-    found_passages: dict[str, str] = {}
-    for doc in load_jsonl(COLLECTION_JSONL):
-        key = doc["key"]
-        if key in target_ids:
-            found_passages[key] = doc["data"].strip()
-        if len(found_passages) == len(target_ids):
-            break
+    # 5. Forward scan of collection
+    found_passages = _fetch_passages_by_id(COLLECTION_JSONL, target_ids)
 
     found_relevant = len(priority_ids & found_passages.keys())
     print(f"  Found {found_relevant}/{len(priority_ids)} relevant + "
-          f"{len(found_passages) - found_relevant} distractor passages in local collection")
+          f"{len(found_passages) - found_relevant} distractor passages")
 
-    # 5. Filter to queries whose relevant passage was actually found
+    # 6. Final filter
     filtered_qrels: dict[str, set[str]] = {}
     filtered_queries: list[dict] = []
     for q in eval_queries_pool:
         qid = q["key"]
-        local_relevant = qrels[qid] & found_passages.keys()
+        local_relevant = local_qrels[qid] & found_passages.keys()
         if local_relevant:
             filtered_qrels[qid] = local_relevant
             filtered_queries.append(q)
 
-    print(f"  Queries with local coverage: {len(filtered_queries)}/{len(eval_queries_pool)}")
+    print(f"  Queries with corpus coverage: {len(filtered_queries)}/{len(eval_queries_pool)}")
 
     corpus_docs = [{"key": k, "data": v} for k, v in found_passages.items()]
     print(f"  Final corpus size: {len(corpus_docs)} documents")
@@ -494,25 +819,32 @@ def main() -> None:
         print(f"  BM25Retriever build failed (skipping): {e}")
 
     try:
-        minhash = MinHashLSHRetriever(num_initial_documents=0, top_k=args.top_k)
-        minhash.build_corpus_from_docs(corpus_docs)
-        retrievers["MinHashLSH"] = minhash
-    except Exception as e:
-        print(f"  MinHashLSHRetriever build failed (skipping): {e}")
-
-    try:
-        minhash_dbscan = MinHashRetriever(dbscan_eps=0.85, corpus_initial_size=0)
+        minhash_dbscan = MinHashDbscanRetriever(dbscan_eps=0.85, corpus_initial_size=0)
         minhash_dbscan.build_corpus_from_docs(corpus_docs)
-        retrievers["MinHash"] = minhash_dbscan
+        retrievers["MinHashDBSCAN"] = minhash_dbscan
     except Exception as e:
-        print(f"  MinHashRetriever build failed (skipping): {e}")
+        print(f"  MinHashDbscanRetriever build failed (skipping): {e}")
 
     try:
-        prob_minhash = ProbMinHashRetriever(dbscan_eps=0.85, corpus_initial_size=0)
-        prob_minhash.build_corpus_from_docs(corpus_docs)
-        retrievers["ProbMinHash"] = prob_minhash
+        minhash_lsh = MinHashLshRetriever(min_hash_lsh_eps=0.85, corpus_initial_size=0)
+        minhash_lsh.build_corpus_from_docs(corpus_docs)
+        retrievers["MinHashLSH"] = minhash_lsh
     except Exception as e:
-        print(f"  ProbMinHashRetriever build failed (skipping): {e}")
+        print(f"  MinHashLshRetriever build failed (skipping): {e}")
+
+    try:
+        prob_minhash_dbscan = ProbMinHashDbscanRetriever(dbscan_eps=0.85, corpus_initial_size=0)
+        prob_minhash_dbscan.build_corpus_from_docs(corpus_docs)
+        retrievers["ProbMinHashDBSCAN"] = prob_minhash_dbscan
+    except Exception as e:
+        print(f"  ProbMinHashDbscanRetriever build failed (skipping): {e}")
+
+    try:
+        prob_minhash_lsh = ProbMinHashLshRetriever(min_hash_lsh_eps=0.85, corpus_initial_size=0)
+        prob_minhash_lsh.build_corpus_from_docs(corpus_docs)
+        retrievers["ProbMinHashLSH"] = prob_minhash_lsh
+    except Exception as e:
+        print(f"  ProbMinHashLshRetriever build failed (skipping): {e}")
 
 
     # ------------------------------------------------------------------
@@ -525,6 +857,7 @@ def main() -> None:
         qrels=eval_qrels,
         top_k=args.top_k,
         max_queries=len(eval_queries),
+        lsh_names=("MinHashLSH", "ProbMinHashLSH"),
     )
 
     results_df.to_csv(f"{EVAL_DIR}/evaluation_results.csv", index=False)
@@ -570,7 +903,6 @@ def main() -> None:
     # 6. Running-Time Complexity experiment
     # ------------------------------------------------------------------
     print("\n[main] Running complexity experiment…")
-    from retrievers.minhashLSH_retriever import MinHashLSHRetriever as _MHR
 
     def _make_classic(docs, k):
         r = ClassicRetriever(top_k=k, num_initial_documents=0)
@@ -582,20 +914,20 @@ def main() -> None:
         r.build_corpus_from_docs(docs)
         return r
 
-    def _make_minhash(docs, k):
-        r = MinHashRetriever(dbscan_eps=0.85, corpus_initial_size=0)
+    def _make_minhash_dbscan(docs, k):
+        r = MinHashDbscanRetriever(dbscan_eps=0.85, corpus_initial_size=0)
         r.build_corpus_from_docs(docs)
         return r
 
     def _make_minhash_lsh(docs, k):
-        r = _MHR(num_initial_documents=0, top_k=k)
+        r = MinHashLshRetriever(min_hash_lsh_eps=0.85, corpus_initial_size=0)
         r.build_corpus_from_docs(docs)
         return r
 
     complexity_factories = {
         "Classic (O(n))": _make_classic,
         "BM25 (O(n))": _make_bm25,
-        "MinHash (sub-linear)": _make_minhash,
+        "MinHashDBSCAN (sub-linear)": _make_minhash_dbscan,
         "MinHashLSH (sub-linear)": _make_minhash_lsh,
     }
     complexity_sizes = [100, 500, 1000, 2000, 5000, min(len(corpus_docs), 10000)]
@@ -613,6 +945,34 @@ def main() -> None:
     complexity_df.to_csv(f"{EVAL_DIR}/complexity_results.csv", index=False)
     plot_complexity_curve(complexity_df, save_path=EVAL_DIR)
     print(f"Saved complexity results → {EVAL_DIR}/complexity_results.csv")
+
+    # ------------------------------------------------------------------
+    # 6b. Dimensionality Reduction Experiment (optional)
+    # ------------------------------------------------------------------
+    dim_df = pd.DataFrame()
+    if args.dim_reduction:
+        print("\n[main] Running dimensionality reduction experiment…")
+        print(f"  Sweeping num_perm={args.dim_reduction_perms}")
+        print(f"  Corpus: {len(corpus_docs)} docs  |  Queries: {min(len(eval_queries), 100)} sampled")
+        dim_df = run_dim_reduction_experiment(
+            corpus_docs=corpus_docs,
+            eval_queries=eval_queries,
+            eval_qrels=eval_qrels,
+            baseline_retrievers={k: v for k, v in retrievers.items() if k in ("BM25", "Classic")},
+            num_perms=args.dim_reduction_perms,
+            top_k=args.top_k,
+        )
+        dim_df.to_csv(f"{EVAL_DIR}/dim_reduction_results.csv", index=False)
+        print(f"Saved dim-reduction results → {EVAL_DIR}/dim_reduction_results.csv")
+        print("\n  Dimensionality Reduction Summary:")
+        print(f"  {'Retriever':20s} {'num_perm':>8} {'vocab_dim':>10} {'reduction':>10} "
+              f"{'J_error':>10} {'prec_BM25':>10} {'lat_ms':>8} {'KB/doc':>8}")
+        print("  " + "-" * 88)
+        for _, row in dim_df.iterrows():
+            print(f"  {row['retriever']:20s} {int(row['num_perm']):>8} "
+                  f"{int(row['vocab_dim']):>10,} {row['reduction_factor']:>9.0f}× "
+                  f"{row['jaccard_error']:>10.4f} {row['prec_vs_bm25']:>10.4f} "
+                  f"{row['latency_s']*1000:>7.2f}ms {row['memory_mb_per_doc']*1024:>7.2f}KB")
 
     # ------------------------------------------------------------------
     # 7. LLM evaluation (optional)
@@ -638,9 +998,15 @@ def main() -> None:
     plot_distance_scores(results_df, save_path=EVAL_DIR)
     plot_credibility_scores(results_df, save_path=EVAL_DIR)
     plot_sketch_vs_baseline(results_df, save_path=EVAL_DIR)
-    # Focused comparison: MinHash / MinHashLSH / ProbMinHash vs Classic + BM25
+    # Focused comparison: MinHash family vs Classic + BM25
     # on the 3 core metrics: retrieval time, memory, baseline precision
-    plot_minhash_vs_baseline(results_df, save_path=EVAL_DIR)
+    plot_minhash_vs_baseline(
+        results_df,
+        sketch_names=("MinHashDBSCAN", "MinHashLSH", "ProbMinHashDBSCAN", "ProbMinHashLSH"),
+        save_path=EVAL_DIR,
+    )
+    if not dim_df.empty:
+        plot_dim_reduction_tradeoff(dim_df, save_path=EVAL_DIR)
 
     print("\n[main] Writing summary report…")
     generate_summary_report(results_df, top_k=args.top_k, save_path=EVAL_DIR)

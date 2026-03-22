@@ -14,8 +14,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-# Consistent colour palette – one colour per retriever name
-PALETTE = ["#4C72B0", "#DD8452", "#55A868", "#C44E52", "#8172B2"]
+# Consistent colour palette – one colour per retriever name (7 entries for up to 6 sketches)
+PALETTE = ["#4C72B0", "#DD8452", "#55A868", "#C44E52", "#8172B2", "#937860", "#DA8BC3"]
 
 
 def _ensure_dir(path: str) -> None:
@@ -506,7 +506,7 @@ def plot_sketch_vs_baseline(
 
 def plot_minhash_vs_baseline(
     results_df: pd.DataFrame,
-    sketch_names: tuple[str, ...] = ("MinHash", "MinHashLSH", "ProbMinHash"),
+    sketch_names: tuple[str, ...] = ("MinHashDBSCAN", "MinHashLSH", "ProbMinHashDBSCAN", "ProbMinHashLSH"),
     baseline_names: tuple[str, ...] = ("Classic", "BM25"),
     save_path: str = "datasets/evaluations",
 ) -> None:
@@ -522,11 +522,13 @@ def plot_minhash_vs_baseline(
     4. Precision vs BM25            – same, but against BM25's result set.
                                       BM25 itself is skipped.
 
-    This separates Classic and BM25 so you can see whether a sketch retriever
-    agrees more with one baseline than the other, and how much Classic and
-    BM25 agree with each other.
+    LSH retrievers (MinHashLSH, ProbMinHashLSH) return ALL results without
+    a fixed top_k — their precision/recall metrics are computed over the full
+    returned set, so they are marked with an asterisk (*) in the x-axis labels.
     """
     _ensure_dir(save_path)
+
+    LSH_NAMES = {"MinHashLSH", "ProbMinHashLSH"}
 
     # Order: baselines first (grey), then sketches (coloured)
     all_retrievers = sorted(results_df["retriever"].unique())
@@ -544,12 +546,16 @@ def plot_minhash_vs_baseline(
         else:
             bar_colors.append(next(sketch_palette, "#333333"))
 
+    # X-tick labels: mark LSH retrievers with * to indicate "all results"
+    x_labels = [f"{r}*" if r in LSH_NAMES else r for r in ordered]
+
     x = np.arange(len(ordered))
-    fig, axes = plt.subplots(1, 4, figsize=(22, 6))
+    fig, axes = plt.subplots(1, 4, figsize=(24, 6))
     fig.suptitle(
         "MinHash Sketch Retrievers vs Baseline  —  "
-        "Retrieval Time  |  Peak Memory  |  Precision vs Classic  |  Precision vs BM25",
-        fontsize=13, y=1.02,
+        "Retrieval Time  |  Peak Memory  |  Precision vs Classic  |  Precision vs BM25\n"
+        "(*LSH retrievers return all matching docs — metrics evaluated on full result set)",
+        fontsize=12, y=1.03,
     )
 
     def _bar_panel(ax, values, stds, title, ylabel, note="", ylim=None, skip_label="N/A (self)"):
@@ -567,7 +573,7 @@ def plot_minhash_vs_baseline(
                 label_y = v + s + max_v * 0.03
                 ax.text(xi, label_y, f"{v:.3f}", ha="center", va="bottom", fontsize=7.5)
         ax.set_xticks(x)
-        ax.set_xticklabels(ordered, rotation=20, ha="right", fontsize=9)
+        ax.set_xticklabels(x_labels, rotation=25, ha="right", fontsize=8.5)
         ax.set_ylabel(ylabel, fontsize=10)
         ax.set_title(f"{title}\n{note}", fontsize=10)
         ax.grid(True, axis="y", alpha=0.3)
@@ -637,7 +643,11 @@ def generate_all_plots(
     plot_memory_comparison(results_df, save_path=save_path)
     plot_per_query_heatmap(results_df, metric="mrr", save_path=save_path)
     # Focused MinHash vs Baseline comparison (time, memory, baseline precision)
-    plot_minhash_vs_baseline(results_df, save_path=save_path)
+    plot_minhash_vs_baseline(
+        results_df,
+        sketch_names=("MinHashDBSCAN", "MinHashLSH", "ProbMinHashDBSCAN", "ProbMinHashLSH"),
+        save_path=save_path,
+    )
     if update_df is not None and not update_df.empty:
         plot_retriever_comparison(results_df, update_df, save_path=save_path)
 
@@ -889,7 +899,85 @@ def plot_complexity_curve(
     plt.close()
 
 
+# ---------------------------------------------------------------------------
+# Dimensionality Reduction Tradeoff Plot
+# ---------------------------------------------------------------------------
 
+def plot_dim_reduction_tradeoff(
+    dim_df: pd.DataFrame,
+    save_path: str = "datasets/evaluations",
+) -> None:
+    """4-panel figure: sketch quality/speed/memory vs num_perm (sketch dimension).
 
+    Panels
+    ------
+    1. Jaccard estimation error vs num_perm  (accuracy; ↓ better; theory: 1/√k)
+    2. Baseline precision vs BM25 vs num_perm (retrieval quality; ↑ better)
+    3. Mean retrieval latency vs num_perm     (speed; ↓ better)
+    4. Memory per document vs num_perm        (efficiency; ↓ better)
 
+    Expected DataFrame columns
+    --------------------------
+    retriever, num_perm, jaccard_error, prec_vs_bm25, latency_s, memory_mb_per_doc
+    """
+    _ensure_dir(save_path)
+
+    retrievers = sorted(dim_df["retriever"].unique())
+    colors = {r: PALETTE[i % len(PALETTE)] for i, r in enumerate(retrievers)}
+    markers = ["o", "s", "^", "D", "v", "P"]
+    marker_map = {r: markers[i % len(markers)] for i, r in enumerate(retrievers)}
+
+    fig, axes = plt.subplots(1, 4, figsize=(22, 5))
+    fig.suptitle(
+        "MinHash Sketching — Dimensionality Reduction Tradeoff\n"
+        "num_perm controls sketch size: higher = more accurate but slower & larger",
+        fontsize=12, y=1.04,
+    )
+
+    panels = [
+        ("jaccard_error",      "Jaccard Estimation Error\n(|estimated − true|, ↓ better)",
+         "Mean |Ĵ − J|",         False, True),
+        ("prec_vs_bm25",       "Retrieval Quality vs BM25\n(baseline precision, ↑ better)",
+         "Fraction overlapping BM25",   False, False),
+        ("latency_s",          "Query Latency\n(↓ better)",
+         "Mean latency (s)",            False, False),
+        ("memory_mb_per_doc",  "Memory per Document\n(↓ better)",
+         "MB per document",             False, False),
+    ]
+
+    for ax, (col, title, ylabel, logx, show_theory) in zip(axes, panels):
+        for ret in retrievers:
+            sub = dim_df[dim_df["retriever"] == ret].sort_values("num_perm")
+            if col not in sub.columns or sub[col].isna().all():
+                continue
+            ax.plot(sub["num_perm"], sub[col],
+                    color=colors[ret], marker=marker_map[ret],
+                    linewidth=1.8, markersize=7, label=ret)
+
+        # Theoretical 1/√k curve for Jaccard error panel
+        if show_theory and "jaccard_error" in dim_df.columns:
+            perms = np.array(sorted(dim_df["num_perm"].unique()))
+            theory = 1.0 / np.sqrt(perms)
+            # Scale to match observed magnitude
+            obs = dim_df.groupby("num_perm")["jaccard_error"].mean()
+            if len(obs) > 0:
+                scale = obs.iloc[0] / (1.0 / np.sqrt(perms[0])) if perms[0] > 0 else 1.0
+            else:
+                scale = 0.5
+            ax.plot(perms, theory * scale, "k--", linewidth=1.2,
+                    alpha=0.6, label="Theory: 1/√k")
+
+        ax.set_xlabel("num_perm (sketch dimension)", fontsize=9)
+        ax.set_ylabel(ylabel, fontsize=9)
+        ax.set_title(title, fontsize=10)
+        ax.set_xticks(sorted(dim_df["num_perm"].unique()))
+        ax.tick_params(axis="x", rotation=30)
+        ax.grid(True, alpha=0.3)
+        ax.legend(fontsize=8)
+
+    plt.tight_layout()
+    out = f"{save_path}/dim_reduction_tradeoff.png"
+    plt.savefig(out, dpi=150, bbox_inches="tight")
+    print(f"Saved → {out}")
+    plt.close()
 

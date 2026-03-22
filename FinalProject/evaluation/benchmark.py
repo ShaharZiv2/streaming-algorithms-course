@@ -83,6 +83,7 @@ def run_benchmark(
     top_k: int = 10,
     max_queries: int | None = None,
     baseline_names: tuple[str, ...] = ("Classic", "BM25"),
+    lsh_names: tuple[str, ...] = ("MinHashLSH", "ProbMinHashLSH"),
 ) -> pd.DataFrame:
     """Evaluate every retriever over every query.
 
@@ -95,6 +96,9 @@ def run_benchmark(
     max_queries     : optional cap on number of queries
     baseline_names  : retriever names treated as the baseline for
                       baseline_precision computation (default: Classic + BM25)
+    lsh_names       : retriever names that return ALL results (no top_k).
+                      For these, metrics are computed over the full result set
+                      because top_k has no meaning for LSH approximate search.
 
     Returns
     -------
@@ -112,6 +116,9 @@ def run_benchmark(
 
     total = len(eval_queries)
     print(f"[benchmark] Evaluating {total} queries × {len(retrievers)} retrievers…")
+    lsh_note = f" (LSH retrievers evaluate on all returned results: {[r for r in retrievers if r in lsh_names]})"
+    if any(r in lsh_names for r in retrievers):
+        print(f"[benchmark]{lsh_note}")
 
     # ------------------------------------------------------------------
     # Pre-compute per-baseline results for every query.
@@ -154,6 +161,10 @@ def run_benchmark(
         vectorizer = getattr(retriever, "vectorizer", None)
         svd        = getattr(retriever, "svd", None)
         is_baseline = retriever_name in baseline_names
+        # LSH retrievers return ALL matching docs; top_k has no meaning for them.
+        # We evaluate on the full returned set but still report @k columns
+        # so the DataFrame schema stays uniform (k is set to len(results)).
+        is_lsh = retriever_name in lsh_names
 
         for i, query in enumerate(eval_queries):
             qid = query["key"]
@@ -162,11 +173,23 @@ def run_benchmark(
 
             try:
                 doc_ids, latency_s, memory_mb = _run_single_query(retriever, query_text, top_k)
-                metrics = compute_all_metrics(doc_ids, relevant, k=top_k)
+                # For LSH retrievers, evaluate on all returned results
+                eval_k = len(doc_ids) if (is_lsh and doc_ids) else top_k
+                metrics = compute_all_metrics(doc_ids, relevant, k=eval_k)
             except Exception as exc:
                 print(f"    [!] query {qid} failed: {exc}")
                 doc_ids, latency_s, memory_mb = [], 0.0, 0.0
                 metrics = compute_all_metrics([], relevant, k=top_k)
+
+            # Rename metric keys to always use the configured top_k for
+            # consistent DataFrame columns across all retrievers.
+            # For LSH, the reported @k refers to all results returned.
+            metrics = {
+                k.replace(f"precision@{len(doc_ids)}", f"precision@{top_k}")
+                 .replace(f"recall@{len(doc_ids)}", f"recall@{top_k}")
+                 .replace(f"ndcg@{len(doc_ids)}", f"ndcg@{top_k}"): v
+                for k, v in metrics.items()
+            }
 
             # ----------------------------------------------------------
             # Per-baseline precision: how much overlap does this retriever
@@ -239,6 +262,8 @@ def run_benchmark(
                 "query_id": qid,
                 "latency_s": latency_s,
                 "memory_mb": memory_mb,
+                "n_results": len(doc_ids),
+                "is_lsh": int(is_lsh),
                 "baseline_precision": bl_precision,
                 **per_bl_precision,
                 "distance_score": top1_distance,
@@ -255,9 +280,6 @@ def run_benchmark(
         print()
 
     return pd.DataFrame(rows)
-
-
-# ---------------------------------------------------------------------------
 # Running-Time Complexity Experiment
 # ---------------------------------------------------------------------------
 
