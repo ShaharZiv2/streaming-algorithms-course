@@ -1,4 +1,5 @@
 TSV_FILES_DIR = 'datasets/tsv'
+FULLDOCS_TSV_GZ = f'{TSV_FILES_DIR}/fulldocs.tsv.gz'
 JSONL_FILES_DIR = 'datasets/jsonl'
 PROCESSED_FILES_DIR = 'datasets/processed'
 PROCESSED_MIN_HASH_FILES_DIR = f'{PROCESSED_FILES_DIR}/min_hash'

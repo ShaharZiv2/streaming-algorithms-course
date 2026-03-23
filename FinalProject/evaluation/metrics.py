@@ -232,3 +232,36 @@ def compute_all_metrics(
         f"ndcg@{k}": ndcg_at_k(retrieved, relevant, k),
         "ap": average_precision(retrieved, relevant),
     }
+
+
+# ---------------------------------------------------------------------------
+# Full-result-set metrics (@all)
+# ---------------------------------------------------------------------------
+
+def f1_at_all(retrieved: list[str], relevant: set[str]) -> float:
+    """F1 score over the full returned result set (k = len(retrieved)).
+
+    F1 = 2 · P@all · R@all / (P@all + R@all)
+    Returns 0.0 when both P and R are 0 (empty result or no relevant docs).
+    """
+    k = len(retrieved)
+    if k == 0 or not relevant:
+        return 0.0
+    p = precision_at_k(retrieved, relevant, k)
+    r = recall_at_k(retrieved, relevant, k)
+    denom = p + r
+    return (2 * p * r / denom) if denom > 0 else 0.0
+
+
+def hit_rate_at_all(retrieved: list[str], relevant: set[str]) -> int:
+    """1 if at least one relevant doc appears in retrieved, else 0.
+
+    Equivalent to Recall@all > 0.  Especially informative when |relevant| = 1
+    (Config B / C self-referential ground truth) since it directly measures
+    whether the target document was found at all.
+    """
+    if not retrieved or not relevant:
+        return 0
+    relevant_set = set(relevant)
+    return 1 if any(d in relevant_set for d in retrieved) else 0
+
