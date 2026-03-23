@@ -36,6 +36,16 @@ class BaseMinHashDbscanRetriever(BaseMinHashRetriever, ABC):
             mask = self.clusters == cluster_label
             self.centroids[cluster_label] = np.mean(self.signatures[mask], axis=0)
 
+        # Precompute stacked centroid matrix for fast vectorised lookup
+        if self.centroids:
+            self._centroid_labels = np.array(list(self.centroids.keys()), dtype=np.int64)
+            self._centroid_matrix = np.round(
+                np.array(list(self.centroids.values()))
+            ).astype(np.uint64)   # shape: (n_clusters, num_perm)
+        else:
+            self._centroid_labels = np.array([], dtype=np.int64)
+            self._centroid_matrix = None
+
     def _fit_save_dbscan(self):
         clusters = self._predict_clusters(self.signatures)
         np.save(f'{self._corpus_dir}/{self.corpus_size}_{self.dbscan.eps}', arr=clusters)
@@ -45,18 +55,13 @@ class BaseMinHashDbscanRetriever(BaseMinHashRetriever, ABC):
         return self.dbscan.fit_predict(signatures)
 
     def _find_best_cluster(self, query_sig):
-        if not self.centroids:
+        if not self.centroids or self._centroid_matrix is None:
             return None
 
-        best_cluster = None
-        best_dist = float('inf')
-        for cluster_label, centroid_sig in self.centroids.items():
-            centroid_int = np.round(centroid_sig).astype(np.uint64)
-            dist = np.sum(centroid_int != query_sig)
-            if dist < best_dist:
-                best_dist = dist
-                best_cluster = cluster_label
-        return best_cluster
+        # Vectorised Hamming distance: (n_clusters, perm) != (perm,) → rowwise sum
+        dists = np.sum(self._centroid_matrix != query_sig, axis=1)  # (n_clusters,)
+        best_idx = int(np.argmin(dists))
+        return int(self._centroid_labels[best_idx])
 
     def _get_cluster_doc_ids(self, cluster_label):
         if cluster_label is None:

@@ -331,6 +331,60 @@ def _build_summary(
 
 
 # ---------------------------------------------------------------------------
+# Mini-corpus update experiment
+# ---------------------------------------------------------------------------
+
+def _run_mini_update_experiment(
+    corpus_docs: list[dict],
+    update_docs: list[dict],
+    mini_size: int = UPDATE_CORPUS_N,
+) -> list[dict]:
+    """Build fresh retrievers on a small corpus slice; time N_UPDATE_DOCS updates.
+
+    We use a mini-corpus (default 5 000 docs) so that DBSCAN-based retrievers
+    (which re-cluster the entire corpus on every update) finish in a reasonable
+    time.  The per-update latency is the meaningful measurement; the absolute
+    corpus size is recorded in the output.
+    """
+    from retrievers.bm25_retriever import BM25Retriever
+    from retrievers.classic_retriever import ClassicRetriever
+    from retrievers.min_hash_dbscan_retriever import MinHashDbscanRetriever
+    from retrievers.min_hash_lsh_retriever import MinHashLshRetriever
+    from retrievers.prob_min_hash_dbscan_retriever import ProbMinHashDbscanRetriever
+    from retrievers.prob_min_hash_lsh_retriever import ProbMinHashLshRetriever
+
+    mini_corpus = corpus_docs[:mini_size]
+    print(f"\n  ► Update-time experiment ({N_UPDATE_DOCS} updates on {mini_size:,}-doc mini-corpus)…")
+
+    mini_retrievers = {
+        "Classic":           ClassicRetriever(top_k=10, num_initial_documents=0),
+        "BM25":              BM25Retriever(top_k=10, num_initial_documents=0),
+        "MinHashDBSCAN":     MinHashDbscanRetriever(corpus_initial_size=0),
+        "MinHashLSH":        MinHashLshRetriever(corpus_initial_size=0),
+        "ProbMinHashDBSCAN": ProbMinHashDbscanRetriever(corpus_initial_size=0),
+        "ProbMinHashLSH":    ProbMinHashLshRetriever(corpus_initial_size=0),
+    }
+
+    # Build mini-index
+    print(f"    Building mini-corpus retrievers ({mini_size:,} docs)…")
+    for name, ret in mini_retrievers.items():
+        t0 = time.perf_counter()
+        ret.build_corpus_from_docs(mini_corpus)
+        print(f"      {name}: {time.perf_counter()-t0:.1f}s")
+
+    # Run update experiments sequentially
+    all_rows: list[dict] = []
+    for ret_name, ret in mini_retrievers.items():
+        print(f"    {ret_name} updates…", end="", flush=True)
+        rows = run_update_experiment(
+            ret, ret_name, update_docs,
+            n=N_UPDATE_DOCS, corpus_offset=mini_size,
+        )
+        all_rows.extend(rows)
+    return all_rows
+
+
+# ---------------------------------------------------------------------------
 # Core orchestrator
 # ---------------------------------------------------------------------------
 
@@ -344,8 +398,13 @@ def run_phase1(
     update_docs:  list[dict] | None = None,
     max_queries:  int | None = None,
     run_updates:  bool = True,
+    skip_build:   bool = False,
 ) -> None:
-    """Orchestrate accuracy + memory + update-time for one config. Saves 4 CSVs."""
+    """Orchestrate accuracy + memory + update-time for one config. Saves 4 CSVs.
+
+    When skip_build=True the retrievers are assumed to be already built on
+    corpus_docs (e.g. Config C reusing retrievers that were built for Config B).
+    """
     save_dir = os.path.join(output_dir, config_name)
     os.makedirs(save_dir, exist_ok=True)
 
@@ -353,11 +412,14 @@ def run_phase1(
     print(f"\n{'='*65}")
     print(f" Phase 1 — {config_name}  ({len(corpus_docs):,} corpus docs)")
     print(f"{'='*65}")
-    for name, retriever in retrievers.items():
-        print(f"\n  ► Building {name}…")
-        t0 = time.perf_counter()
-        retriever.build_corpus_from_docs(corpus_docs)
-        print(f"    Done in {time.perf_counter()-t0:.1f}s")
+    if skip_build:
+        print("  (Skipping build — reusing retrievers from previous config)")
+    else:
+        for name, retriever in retrievers.items():
+            print(f"\n  ► Building {name}…")
+            t0 = time.perf_counter()
+            retriever.build_corpus_from_docs(corpus_docs)
+            print(f"    Done in {time.perf_counter()-t0:.1f}s")
 
     # ── 2. Filter / cap queries ───────────────────────────────────────────
     runnable = [q for q in eval_queries if q["key"] in qrels]
@@ -439,18 +501,15 @@ def run_phase1(
                 print(f"\r    {i+1:>6}/{total_q}  ({elapsed:.0f}s)", end="", flush=True)
         print()
 
-    # ── 5. Update time (runs LAST – mutates index) ────────────────────────
+    # ── 5. Update time – uses a small mini-corpus so DBSCAN re-clustering ──
+    #        is feasible (full 100K corpus would be O(n²) per update call).
     update_rows: list[dict] = []
     if run_updates and update_docs:
-        print(f"\n  ► Update-time experiment ({N_UPDATE_DOCS} sequential updates)…")
-        print(f"    NOTE: update() is run on the already-built {len(corpus_docs):,}-doc index.")
-        for ret_name, retriever in retrievers.items():
-            print(f"    {ret_name}…")
-            rows = run_update_experiment(
-                retriever, ret_name, update_docs,
-                n=N_UPDATE_DOCS, corpus_offset=len(corpus_docs),
-            )
-            update_rows.extend(rows)
+        update_rows = _run_mini_update_experiment(
+            corpus_docs=corpus_docs,
+            update_docs=update_docs,
+            mini_size=UPDATE_CORPUS_N,
+        )
 
     # ── 6. Save CSVs ──────────────────────────────────────────────────────
     acc_path = os.path.join(save_dir, "accuracy.csv")
@@ -483,4 +542,7 @@ def _print_summary(df: pd.DataFrame, config_name: str) -> None:
             "memory_mb_mean", "update_latency_mean_s"]
     cols = [c for c in cols if c in df.columns]
     print(df[cols].to_string(index=False, float_format=lambda x: f"{x:.4f}"))
+
+
+
 

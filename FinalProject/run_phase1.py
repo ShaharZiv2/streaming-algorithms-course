@@ -99,9 +99,10 @@ def run_config_b(args: argparse.Namespace, shared=None) -> tuple:
         output_dir   = args.output_dir,
         update_docs  = update_docs,
         max_queries  = args.max_queries,
-        run_updates  = not args.no_updates,
+        run_updates  = False,          # updates run once after Config C
     )
-    return corpus_docs, queries_b, queries_c, qrels, update_docs
+    # Return retrievers (already built) so Config C can reuse them
+    return corpus_docs, queries_b, queries_c, qrels, update_docs, retrievers
 
 
 def run_config_c(args: argparse.Namespace, shared=None) -> None:
@@ -111,10 +112,18 @@ def run_config_c(args: argparse.Namespace, shared=None) -> None:
 
     if shared is None:
         corpus_docs, queries_b, queries_c, qrels, update_docs = load_configs_bc()
+        retrievers = _make_retrievers()
+        skip_build = False
     else:
-        corpus_docs, queries_b, queries_c, qrels, update_docs = shared
+        # shared may include pre-built retrievers from Config B
+        if len(shared) == 6:
+            corpus_docs, queries_b, queries_c, qrels, update_docs, retrievers = shared
+            skip_build = True
+        else:
+            corpus_docs, queries_b, queries_c, qrels, update_docs = shared
+            retrievers = _make_retrievers()
+            skip_build = False
 
-    retrievers = _make_retrievers()
     run_phase1(
         retrievers   = retrievers,
         corpus_docs  = corpus_docs,
@@ -125,6 +134,7 @@ def run_config_c(args: argparse.Namespace, shared=None) -> None:
         update_docs  = update_docs,
         max_queries  = args.max_queries,
         run_updates  = not args.no_updates,
+        skip_build   = skip_build,
     )
 
 
@@ -163,6 +173,7 @@ def main() -> None:
 
     if args.config_b:
         shared_bc = run_config_b(args, shared=shared_bc)
+        # shared_bc now contains pre-built retrievers (6-tuple)
 
     if args.config_c:
         run_config_c(args, shared=shared_bc)
@@ -175,4 +186,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
 
