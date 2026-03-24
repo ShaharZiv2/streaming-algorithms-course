@@ -62,14 +62,30 @@ SEED             = 42
 # ---------------------------------------------------------------------------
 
 def _retrieve_all_classic(retriever: ClassicRetriever, query_text: str) -> list[str]:
-    """Return all doc_ids with Jaccard-cosine similarity >= COSINE_THRESHOLD."""
+    """Return all doc_ids with TF-IDF cosine similarity >= COSINE_THRESHOLD.
+
+    Uses cosine similarity (L2-normed dot product) so the 0.05 threshold is
+    consistent with the threshold-analysis study that calibrated it on cosine,
+    not Jaccard (Jaccard is much lower and would return almost nothing).
+    """
     if retriever.vectorizer is None or retriever.doc_matrix is None:
         return []
     try:
         query_vec = retriever.vectorizer.transform([query_text])
     except Exception:
         return []
-    scores = _jaccard_scores(query_vec, retriever.doc_matrix)   # (n,)
+
+    from sklearn.preprocessing import normalize as sk_normalize
+    query_norm = sk_normalize(query_vec, norm="l2")   # (1 × vocab), sparse
+
+    # Use pre-computed L2-normalised doc matrix if available
+    if hasattr(retriever, "doc_matrix_norm") and retriever.doc_matrix_norm is not None:
+        doc_norm = retriever.doc_matrix_norm
+    else:
+        doc_norm = sk_normalize(retriever.doc_matrix, norm="l2", copy=True)
+
+    scores = doc_norm.dot(query_norm.T).toarray().ravel()   # (n,) cosine sims
+
     mask = scores >= COSINE_THRESHOLD
     if not mask.any():
         return []
@@ -79,7 +95,12 @@ def _retrieve_all_classic(retriever: ClassicRetriever, query_text: str) -> list[
 
 
 def _retrieve_all_bm25(retriever: BM25Retriever, query_text: str) -> list[str]:
-    """Return all doc_ids with BM25 score > mean of all positive scores."""
+    """Return all doc_ids with BM25 score > mean + std of positive scores.
+
+    Using mean+std (instead of just mean) keeps only the top ~16% of scoring
+    docs under a normal distribution, giving a result set comparable in size
+    to the sketch retrievers (~50-200 docs per query).
+    """
     if retriever._bm25 is None:
         return []
     tokens = _tokenize(query_text)
@@ -89,7 +110,7 @@ def _retrieve_all_bm25(retriever: BM25Retriever, query_text: str) -> list[str]:
     positives = scores[scores > 0]
     if len(positives) == 0:
         return []
-    threshold = float(positives.mean())
+    threshold = float(positives.mean() + positives.std())
     mask = scores > threshold
     if not mask.any():
         return []
@@ -542,6 +563,8 @@ def _print_summary(df: pd.DataFrame, config_name: str) -> None:
             "memory_mb_mean", "update_latency_mean_s"]
     cols = [c for c in cols if c in df.columns]
     print(df[cols].to_string(index=False, float_format=lambda x: f"{x:.4f}"))
+
+
 
 
 

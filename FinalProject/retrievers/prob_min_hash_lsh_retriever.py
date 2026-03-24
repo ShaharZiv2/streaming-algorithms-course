@@ -50,24 +50,28 @@ class ProbMinHashLshRetriever(BaseMinHashLshRetriever):
 
         print(f"[ProbMinHashLshRetriever] Building ProbMinHash signatures…")
         sketches = []
+        valid_ids = []
         for i in range(self.corpus_size):
             start, end = tfidf_matrix.indptr[i], tfidf_matrix.indptr[i + 1]
             doc_keys = tfidf_matrix.indices[start:end]
             doc_weights = tfidf_matrix.data[start:end]
+            if len(doc_keys) == 0:
+                continue   # skip empty-vocab documents
             pmh = ProbMinHash4(num_perm=128, seed=SEED)
             pmh.fit(doc_keys, doc_weights)
             sketches.append(pmh.hashvalues)
+            valid_ids.append(doc_ids[i])
 
-        self.ids = doc_ids
-        self.signatures = np.array(sketches)
-        self.min_hash_cursor = self.corpus_size
+        self.ids = valid_ids
+        self.signatures = np.nan_to_num(np.array(sketches, dtype=np.float64), nan=0.0)
+        self.min_hash_cursor = len(valid_ids)
 
         print(f"[ProbMinHashLshRetriever] Building LSH index (threshold={1 - self.min_hash_lsh_eps:.2f})…")
         self.index = MinHashLSH(threshold=1 - self.min_hash_lsh_eps, num_perm=128)
         with self.index.insertion_session() as session:
             for doc_id, sig in zip(self.ids, self.signatures):
                 session.insert(doc_id, DMinHash(num_perm=128, hashvalues=sig))
-        print(f"[ProbMinHashLshRetriever] LSH index ready ({len(doc_ids)} docs).")
+        print(f"[ProbMinHashLshRetriever] LSH index ready ({len(valid_ids)} docs).")
 
     def retrieve(self, query, **kwargs) -> List[np.str_]:
         query_mat = self.tfidf_vectorizer.transform([query])

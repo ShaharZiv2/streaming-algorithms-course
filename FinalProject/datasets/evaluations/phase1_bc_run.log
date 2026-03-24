@@ -1,0 +1,115 @@
+
+Loading shared full-docs data (used for Config B and C)…
+[Config B/C] Loading 100,000 full docs from fulldocs.tsv.gz…
+  Corpus: 100,000 full docs.
+  Query sample: 10,000  Update docs: 100
+
+======================================================================
+ CONFIG B  —  Short queries (doc titles)  +  Full document corpus
+======================================================================
+
+=================================================================
+ Phase 1 — config_b  (100,000 corpus docs)
+=================================================================
+
+  ► Building Classic…
+[ClassicRetriever] Indexing 100000 pre-loaded documents…
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=500, n=100000)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 100000 noise points.
+[ClassicRetriever] Corpus ready.
+    Done in 441.1s
+
+  ► Building BM25…
+[BM25Retriever] Indexing 100000 pre-loaded documents…
+[BM25Retriever] Index ready (100000 docs, k1=1.5, b=0.75).
+    Done in 213.6s
+
+  ► Building MinHashDBSCAN…
+[MinHashRetriever] Building MinHash signatures for 100000 documents…
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[MinHashRetriever] Running DBSCAN clustering…
+[MinHashRetriever] Index ready (99622 docs, 2744 clusters).
+    Done in 569.1s
+
+  ► Building MinHashLSH…
+[MinHashLshRetriever] Building MinHash signatures for 100000 documents…
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[MinHashLshRetriever] Building LSH index (threshold=0.15)…
+[MinHashLshRetriever] LSH index ready (99622 docs).
+    Done in 553.1s
+
+  ► Building ProbMinHashDBSCAN…
+[ProbMinHashRetriever] Building TF-IDF vectoriser over 100000 documents…
+[ProbMinHashRetriever] Building ProbMinHash signatures…
+[ProbMinHashRetriever] Running DBSCAN clustering…
+[ProbMinHashRetriever] Index ready (100000 docs, 2656 clusters).
+    Done in 1614.7s
+
+  ► Building ProbMinHashLSH…
+[ProbMinHashLshRetriever] Building TF-IDF vectoriser over 100000 documents…
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ProbMinHashLshRetriever] Building ProbMinHash signatures…
+[ProbMinHashLshRetriever] Building LSH index (threshold=0.15)…
+[ProbMinHashLshRetriever] LSH index ready (99622 docs).
+    Done in 1582.5s
+
+  Queries to evaluate: 1,000
+  Pre-computing Classic full results…
+  Pre-computing BM25 full results…
+
+  ► Evaluating Classic (1,000 queries)…
+       500/1000  (14s)      1000/1000  (27s)
+
+  ► Evaluating BM25 (1,000 queries)…
+       500/1000  (45s)      1000/1000  (89s)
+
+  ► Evaluating MinHashDBSCAN (1,000 queries)…
+       500/1000  (1s)      1000/1000  (3s)
+
+  ► Evaluating MinHashLSH (1,000 queries)…
+       500/1000  (1s)      1000/1000  (2s)
+
+  ► Evaluating ProbMinHashDBSCAN (1,000 queries)…
+       500/1000  (5s)      1000/1000  (9s)
+
+  ► Evaluating ProbMinHashLSH (1,000 queries)…
+       500/1000  (5s)      1000/1000  (9s)
+
+─────────────────────────────────────────────────────────────────
+  Summary — config_b
+─────────────────────────────────────────────────────────────────
+        retriever  hit_rate_at_all_mean  mrr_mean    map  recall_at_all_mean  f1_at_all_mean  memory_mb_mean
+          Classic                0.7370    0.1599 0.1599              0.7370          0.0035          1.3931
+             BM25                0.8320    0.6507 0.6507              0.8320          0.0162          3.4602
+    MinHashDBSCAN                0.0020    0.0015 0.0015              0.0020          0.0013          0.3801
+       MinHashLSH                0.0360    0.0187 0.0187              0.0360          0.0155          0.0184
+ProbMinHashDBSCAN                0.0040    0.0030 0.0030              0.0040          0.0027          0.3695
+   ProbMinHashLSH                0.0750    0.0538 0.0538              0.0750          0.0524          0.0215
+
+  Saved to datasets/evaluations/phase1/config_b/
+
+======================================================================
+ CONFIG C  —  Long queries (doc bodies)   +  Full document corpus
+======================================================================
+
+=================================================================
+ Phase 1 — config_c  (100,000 corpus docs)
+=================================================================
+  (Skipping build — reusing retrievers from previous config)
+
+  Queries to evaluate: 1,000
+  Pre-computing Classic full results…
+  Pre-computing BM25 full results…

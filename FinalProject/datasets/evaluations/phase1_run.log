@@ -52,3 +52,1009 @@
   ► Building ProbMinHashDBSCAN…
 [ProbMinHashRetriever] Building TF-IDF vectoriser over 100000 documents…
 [ProbMinHashRetriever] Building ProbMinHash signatures…
+[ProbMinHashRetriever] Running DBSCAN clustering…
+[ProbMinHashRetriever] Index ready (100000 docs, 12716 clusters).
+    Done in 534.5s
+
+  ► Building ProbMinHashLSH…
+[ProbMinHashLshRetriever] Building TF-IDF vectoriser over 100000 documents…
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ProbMinHashLshRetriever] Building ProbMinHash signatures…
+[ProbMinHashLshRetriever] Building LSH index (threshold=0.15)…
+[ProbMinHashLshRetriever] LSH index ready (100000 docs).
+    Done in 510.6s
+
+  Queries to evaluate: 1,000
+  Pre-computing Classic full results…
+  Pre-computing BM25 full results…
+
+  ► Evaluating Classic (1,000 queries)…
+       500/1000  (2s)      1000/1000  (4s)
+
+  ► Evaluating BM25 (1,000 queries)…
+       500/1000  (19s)      1000/1000  (38s)
+
+  ► Evaluating MinHashDBSCAN (1,000 queries)…
+       500/1000  (2s)      1000/1000  (4s)
+
+  ► Evaluating MinHashLSH (1,000 queries)…
+       500/1000  (1s)      1000/1000  (3s)
+
+  ► Evaluating ProbMinHashDBSCAN (1,000 queries)…
+       500/1000  (4s)      1000/1000  (9s)
+
+  ► Evaluating ProbMinHashLSH (1,000 queries)…
+       500/1000  (5s)      1000/1000  (10s)
+
+  ► Update-time experiment (100 updates on 5,000-doc mini-corpus)…
+    Building mini-corpus retrievers (5,000 docs)…
+[ClassicRetriever] Indexing 5000 pre-loaded documents…
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5000)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5000 noise points.
+[ClassicRetriever] Corpus ready.
+      Classic: 0.8s
+[BM25Retriever] Indexing 5000 pre-loaded documents…
+[BM25Retriever] Index ready (5000 docs, k1=1.5, b=0.75).
+      BM25: 0.5s
+[MinHashRetriever] Building MinHash signatures for 5000 documents…
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[MinHashRetriever] Running DBSCAN clustering…
+[MinHashRetriever] Index ready (5000 docs, 658 clusters).
+      MinHashDBSCAN: 3.4s
+[MinHashLshRetriever] Building MinHash signatures for 5000 documents…
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[MinHashLshRetriever] Building LSH index (threshold=0.15)…
+[MinHashLshRetriever] LSH index ready (5000 docs).
+      MinHashLSH: 5.0s
+[ProbMinHashRetriever] Building TF-IDF vectoriser over 5000 documents…
+[ProbMinHashRetriever] Building ProbMinHash signatures…
+[ProbMinHashRetriever] Running DBSCAN clustering…
+[ProbMinHashRetriever] Index ready (5000 docs, 679 clusters).
+      ProbMinHashDBSCAN: 22.6s
+[ProbMinHashLshRetriever] Building TF-IDF vectoriser over 5000 documents…
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ProbMinHashLshRetriever] Building ProbMinHash signatures…
+[ProbMinHashLshRetriever] Building LSH index (threshold=0.15)…
+[ProbMinHashLshRetriever] LSH index ready (5000 docs).
+      ProbMinHashLSH: 24.2s
+    Classic updates…[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5001)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5001 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5002)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5002 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5003)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5003 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5004)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5004 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5005)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5005 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5006)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5006 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5007)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5007 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5008)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5008 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5009)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5009 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5010)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5010 noise points.
+      10/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5011)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5011 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5012)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5012 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5013)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5013 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5014)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5014 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5015)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5015 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5016)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5016 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5017)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5017 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5018)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5018 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5019)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5019 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5020)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5020 noise points.
+      20/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5021)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5021 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5022)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5022 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5023)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5023 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5024)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5024 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5025)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5025 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5026)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5026 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5027)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5027 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5028)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5028 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5029)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5029 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5030)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5030 noise points.
+      30/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5031)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5031 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5032)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5032 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5033)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5033 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5034)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5034 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5035)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5035 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5036)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5036 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5037)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5037 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5038)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5038 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5039)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5039 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5040)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5040 noise points.
+      40/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5041)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5041 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5042)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5042 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5043)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5043 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5044)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5044 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5045)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5045 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5046)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5046 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5047)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5047 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5048)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5048 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5049)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5049 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5050)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5050 noise points.
+      50/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5051)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5051 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5052)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5052 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5053)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5053 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5054)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5054 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5055)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5055 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5056)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5056 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5057)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5057 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5058)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5058 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5059)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5059 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5060)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5060 noise points.
+      60/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5061)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5061 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5062)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5062 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5063)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5063 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5064)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5064 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5065)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5065 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5066)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5066 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5067)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5067 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5068)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5068 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5069)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5069 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5070)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5070 noise points.
+      70/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5071)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5071 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5072)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5072 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5073)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5073 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5074)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5074 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5075)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5075 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5076)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5076 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5077)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5077 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5078)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5078 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5079)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5079 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5080)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5080 noise points.
+      80/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5081)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5081 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5082)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5082 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5083)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5083 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5084)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5084 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5085)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5085 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5086)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5086 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5087)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5087 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5088)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5088 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5089)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5089 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5090)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5090 noise points.
+      90/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5091)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5091 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5092)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5092 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5093)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5093 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5094)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5094 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5095)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5095 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5096)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5096 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5097)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5097 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5098)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5098 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5099)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5099 noise points.
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=25, n=5100)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 5100 noise points.
+      100/100 updates done
+    BM25 updates…      10/100 updates done      20/100 updates done      30/100 updates done      40/100 updates done      50/100 updates done      60/100 updates done      70/100 updates done      80/100 updates done      90/100 updates done      100/100 updates done
+    MinHashDBSCAN updates…/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+      10/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+      20/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+      30/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+      40/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+      50/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+      60/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+      70/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+      80/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+      90/100 updates done/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+      100/100 updates done
+    MinHashLSH updates…/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+      10/100 updates done      20/100 updates done      30/100 updates done      40/100 updates done      50/100 updates done      60/100 updates done      70/100 updates done      80/100 updates done      90/100 updates done      100/100 updates done
+    ProbMinHashDBSCAN updates…      10/100 updates done      20/100 updates done      30/100 updates done      40/100 updates done      50/100 updates done      60/100 updates done      70/100 updates done      80/100 updates done      90/100 updates done      100/100 updates done
+    ProbMinHashLSH updates…      10/100 updates done      20/100 updates done      30/100 updates done      40/100 updates done      50/100 updates done      60/100 updates done      70/100 updates done      80/100 updates done      90/100 updates done      100/100 updates done
+
+─────────────────────────────────────────────────────────────────
+  Summary — config_a
+─────────────────────────────────────────────────────────────────
+        retriever  hit_rate_at_all_mean  mrr_mean    map  recall_at_all_mean  f1_at_all_mean  memory_mb_mean  update_latency_mean_s
+          Classic                0.0000    0.0000 0.0000              0.0000          0.0000          3.9141                 0.7705
+             BM25                0.0070    0.0000 0.0000              0.0065          0.0000          3.8790                 0.0220
+    MinHashDBSCAN                0.0000    0.0000 0.0000              0.0000          0.0000          1.6467                 0.1469
+       MinHashLSH                0.0000    0.0000 0.0000              0.0000          0.0000          0.0229                 0.0010
+ProbMinHashDBSCAN                0.0000    0.0000 0.0000              0.0000          0.0000          1.7152                 0.0000
+   ProbMinHashLSH                0.0000    0.0000 0.0000              0.0000          0.0000          0.0230                 0.0042
+
+  Saved to datasets/evaluations/phase1/config_a/
+
+Loading shared full-docs data (used for Config B and C)…
+[Config B/C] Loading 100,000 full docs from fulldocs.tsv.gz…
+  Corpus: 100,000 full docs.
+  Query sample: 10,000  Update docs: 100
+
+======================================================================
+ CONFIG B  —  Short queries (doc titles)  +  Full document corpus
+======================================================================
+
+=================================================================
+ Phase 1 — config_b  (100,000 corpus docs)
+=================================================================
+
+  ► Building Classic…
+[ClassicRetriever] Indexing 100000 pre-loaded documents…
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[ClassicRetriever] Running DBSCAN (eps=0.3, min_samples=500, n=100000)…
+[ClassicRetriever] DBSCAN done: 0 clusters, 100000 noise points.
+[ClassicRetriever] Corpus ready.
+    Done in 468.5s
+
+  ► Building BM25…
+[BM25Retriever] Indexing 100000 pre-loaded documents…
+[BM25Retriever] Index ready (100000 docs, k1=1.5, b=0.75).
+    Done in 218.1s
+
+  ► Building MinHashDBSCAN…
+[MinHashRetriever] Building MinHash signatures for 100000 documents…
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[MinHashRetriever] Running DBSCAN clustering…
+[MinHashRetriever] Index ready (99622 docs, 2744 clusters).
+    Done in 573.5s
+
+  ► Building MinHashLSH…
+[MinHashLshRetriever] Building MinHash signatures for 100000 documents…
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:526: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/feature_extraction/text.py:411: UserWarning: Your stop_words may be inconsistent with your preprocessing. Tokenizing the stop words generated tokens ['anywh', 'el', 'elsewh', 'everywh', 'ind', 'otherwi', 'plea', 'somewh'] not in stop_words.
+  warnings.warn(
+[MinHashLshRetriever] Building LSH index (threshold=0.15)…
+[MinHashLshRetriever] LSH index ready (99622 docs).
+    Done in 555.9s
+
+  ► Building ProbMinHashDBSCAN…
+[ProbMinHashRetriever] Building TF-IDF vectoriser over 100000 documents…
+[ProbMinHashRetriever] Building ProbMinHash signatures…
+[ProbMinHashRetriever] Running DBSCAN clustering…
+Traceback (most recent call last):
+  File "/Users/tamara/Documents/school/streaming-algorithms-course/FinalProject/run_phase1.py", line 188, in <module>
+    main()
+    ~~~~^^
+  File "/Users/tamara/Documents/school/streaming-algorithms-course/FinalProject/run_phase1.py", line 175, in main
+    shared_bc = run_config_b(args, shared=shared_bc)
+  File "/Users/tamara/Documents/school/streaming-algorithms-course/FinalProject/run_phase1.py", line 93, in run_config_b
+    run_phase1(
+    ~~~~~~~~~~^
+        retrievers   = retrievers,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        run_updates  = False,          # updates run once after Config C
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/tamara/Documents/school/streaming-algorithms-course/FinalProject/evaluation/phase1_eval.py", line 421, in run_phase1
+    run_updates:  bool = True,
+            ^^^^^^^^^^^^^^^^^^
+  File "/Users/tamara/Documents/school/streaming-algorithms-course/FinalProject/retrievers/prob_min_hash_dbscan_retriever.py", line 67, in build_corpus_from_docs
+    self.clusters = self._predict_clusters(self.signatures)
+                    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/tamara/Documents/school/streaming-algorithms-course/FinalProject/retrievers/base_min_hash_dbscan_retriever.py", line 55, in _predict_clusters
+    return self.dbscan.fit_predict(signatures)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/cluster/_dbscan.py", line 505, in fit_predict
+    self.fit(X, sample_weight=sample_weight)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/base.py", line 1336, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/cluster/_dbscan.py", line 422, in fit
+    X = validate_data(self, X, accept_sparse="csr")
+  File "/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/utils/validation.py", line 2902, in validate_data
+    out = check_array(X, input_name="X", **check_params)
+  File "/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/utils/validation.py", line 1074, in check_array
+    _assert_all_finite(
+    ~~~~~~~~~~~~~~~~~~^
+        array,
+        ^^^^^^
+    ...<2 lines>...
+        allow_nan=ensure_all_finite == "allow-nan",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/utils/validation.py", line 133, in _assert_all_finite
+    _assert_all_finite_element_wise(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        X,
+        ^^
+    ...<4 lines>...
+        input_name=input_name,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/tamara/Library/Caches/pypoetry/virtualenvs/hw2-bpfhFL1R-py3.13/lib/python3.13/site-packages/sklearn/utils/validation.py", line 182, in _assert_all_finite_element_wise
+    raise ValueError(msg_err)
+ValueError: Input X contains NaN.
+DBSCAN does not accept missing values encoded as NaN natively. For supervised learning, you might want to consider sklearn.ensemble.HistGradientBoostingClassifier and Regressor which accept missing values encoded as NaNs natively. Alternatively, it is possible to preprocess the data, for instance by using an imputer transformer in a pipeline or drop samples with missing values. See https://scikit-learn.org/stable/modules/impute.html You can find a list of all estimators that handle NaN values at the following page: https://scikit-learn.org/stable/modules/impute.html#estimators-that-handle-nan-values

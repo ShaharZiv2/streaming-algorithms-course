@@ -83,7 +83,9 @@ class ProbMinHash4:
 
                 i += 1
 
-        self.hashvalues = result
+        # Replace any un-assigned slots (None) with 0 so the signature
+        # array stays numeric and DBSCAN / LSH don't receive NaN values.
+        self.hashvalues = [v if v is not None else 0 for v in result]
 
     def to_min_hash(self) -> MinHash:
         return MinHash(num_perm=self.num_perm, hashvalues=self.hashvalues)
