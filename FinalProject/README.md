@@ -19,6 +19,82 @@ document corpora.
 
 ---
 
+## Final report
+
+The written **final report** for this project is the Word document in the repository root:
+
+- [`Final report.docx`](Final%20report.docx)
+
+---
+
+## Project structure
+
+### First step: `prepare_data`
+
+Before running evaluations, prepare datasets on disk. The entry point is **`prepare_data()`** in [`logic/preprocessing_utils.py`](logic/preprocessing_utils.py). It:
+
+- Ensures all dataset output directories exist (`create_output_dirs()`).
+- Optionally downloads MS MARCO TSVs when called with `download=True` (slow; the docstring links to browser-friendly URLs).
+- Converts collection, queries, and qrels from TSV to JSONL (`convert_tsv_to_jsonl`), producing the files under `datasets/jsonl/` that the rest of the pipeline expects.
+
+Place the source TSVs under `datasets/tsv/` (or let `prepare_data(download=True)` fetch them), then run `prepare_data()` once; after that you can use **`main.py`** as described under [Running Experiments](#running-experiments).
+
+### Retrievers
+
+All six retriever variants and their shared bases live under **`retrievers/`**:
+
+```
+retrievers/
+├── base_retriever.py                 # Abstract `BaseRetriever` API
+├── classic_retriever.py              # TF-IDF + DBSCAN + Jaccard
+├── bm25_retriever.py                 # BM25Okapi
+├── base_min_hash_retriever.py        # Shared MinHash sketching
+├── base_min_hash_lsh_retriever.py    # LSH base for MinHash / ProbMinHash
+├── base_min_hash_dbscan_retriever.py # DBSCAN base for MinHash / ProbMinHash
+├── min_hash_lsh_retriever.py
+├── min_hash_dbscan_retriever.py
+├── prob_min_hash_lsh_retriever.py
+└── prob_min_hash_dbscan_retriever.py
+```
+
+### Rest of the repository
+
+```
+FinalProject/
+├── main.py                        # Evaluation entry point
+├── Final report.docx              # Final report (see [Final report](#final-report))
+├── pyproject.toml                 # Poetry dependencies
+│
+├── evaluation/
+│   ├── evaluation.py              # Core runner: load data, run_phase1(), metrics loop
+│   ├── metrics.py                 # P@k, R@k, MRR, NDCG, AP, Hit Rate, F1
+│   ├── benchmark.py               # Timing / memory utilities
+│   └── generate_plots.py          # Generate all 10 plots from saved CSVs
+│
+├── retrievers/                    # Layout: see [Retrievers](#retrievers) above
+│
+├── logic/
+│   ├── constants.py               # All file paths
+│   ├── prob_min_hash.py           # ProbMinHash4 implementation
+│   ├── tf_idf.py                  # TF-IDF build / load helpers
+│   ├── stemming_utils.py          # SnowballStemmer tokeniser + stop words
+│   └── preprocessing_utils.py   # `prepare_data()`, downloads, TSV→JSONL
+│
+└── datasets/
+    ├── jsonl/                     # collection.jsonl, queries.jsonl, qrels.jsonl
+    ├── tsv/                       # fulldocs.tsv.gz (full document corpus)
+    └── evaluations/
+        ├── experiment_results/    # ★ Data & plots used in the final report
+        │   └── raw_results/
+        │       ├── config_a/      # accuracy.csv, memory.csv, summary.csv, update_time.csv
+        │       ├── config_b/
+        │       ├── config_c/
+        │       └── plots/         # 10 PNG visualisations
+        └── raw_results/           # Re-runnable output (same structure as above)
+```
+
+---
+
 ## Retrievers
 
 | Name | Description |
@@ -47,50 +123,6 @@ Each config measures:
 - **Accuracy** — Hit Rate @all, MRR, MAP, P/R/F1/NDCG @all  
 - **Memory** — peak RSS tracked with `tracemalloc` (MB)  
 - **Update latency** — time to insert 100 new documents one-by-one (s)
-
----
-
-## Project Structure
-
-```
-FinalProject/
-├── main.py                        # Evaluation entry point
-├── pyproject.toml                 # Poetry dependencies
-│
-├── evaluation/
-│   ├── evaluation.py              # Core runner: load data, run_phase1(), metrics loop
-│   ├── metrics.py                 # P@k, R@k, MRR, NDCG, AP, Hit Rate, F1
-│   ├── benchmark.py               # Timing / memory utilities
-│   └── generate_plots.py          # Generate all 10 plots from saved CSVs
-│
-├── retrievers/
-│   ├── base_retriever.py          # Abstract base (build_corpus / update / retrieve)
-│   ├── classic_retriever.py       # TF-IDF + DBSCAN + Jaccard
-│   ├── bm25_retriever.py          # BM25Okapi
-│   ├── min_hash_lsh_retriever.py  # MinHash + LSH
-│   ├── min_hash_dbscan_retriever.py
-│   ├── prob_min_hash_lsh_retriever.py
-│   └── prob_min_hash_dbscan_retriever.py
-│
-├── logic/
-│   ├── constants.py               # All file paths
-│   ├── prob_min_hash.py           # ProbMinHash4 implementation
-│   ├── tf_idf.py                  # TF-IDF build / load helpers
-│   ├── stemming_utils.py          # SnowballStemmer tokeniser + stop words
-│   └── preprocessing_utils.py
-│
-└── datasets/
-    ├── jsonl/                     # collection.jsonl, queries.jsonl, qrels.jsonl
-    ├── tsv/                       # fulldocs.tsv.gz (full document corpus)
-    └── evaluations/
-        ├── experiment_results/    # ★ Data & plots used in the final report
-        │   └── raw_results/
-        │       ├── config_a/      # accuracy.csv, memory.csv, summary.csv, update_time.csv
-        │       ├── config_b/
-        │       ├── config_c/
-        │       └── plots/         # 10 PNG visualisations
-        └── raw_results/           # Re-runnable output (same structure as above)
-```
 
 ---
 
@@ -174,7 +206,7 @@ wget https://msmarco.z22.web.core.windows.net/msmarcoranking/fulldocs.tsv.gz -P 
 
 ## Running Experiments
 
-All commands should be run from the `FinalProject/` directory.
+All commands should be run from the `FinalProject/` directory. Ensure you have already run **`prepare_data()`** from [`logic/preprocessing_utils.py`](logic/preprocessing_utils.py) so `datasets/jsonl/` exists (see [First step: `prepare_data`](#first-step-prepare_data)).
 
 ### Quick smoke-test (~1–2 min)
 
