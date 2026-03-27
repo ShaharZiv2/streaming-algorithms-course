@@ -167,7 +167,6 @@ def main() -> None:
 
     if args.config_b or args.config_c:
         # load fulldocs once — reuse for both B and C
-        from evaluation.phase1_eval import load_configs_bc
         print("\nLoading shared full-docs data (used for Config B and C)…")
         shared_bc = load_configs_bc()
 

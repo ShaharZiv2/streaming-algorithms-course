@@ -211,3 +211,7 @@ __marimo__/
 datasets/**
 !datasets/**/
 
+# Phase 1 evaluation results — explicitly tracked
+!datasets/evaluations/phase1/**
+!datasets/evaluations/phase1_quick/**
+

@@ -1,23 +1,41 @@
 """
-evaluation/phase1_eval.py
-=========================
+evaluation/evaluation.py
+========================
 Phase 1 evaluation: Memory, Update Time, and Accuracy across three data configs.
 
 Config A – Short queries  + Short documents  (passages ~52 words)
-Config B – Short queries  + Full documents   (fulldocs titles ~5 words as query)
-Config C – Long queries   + Full corpus      (fulldocs body ~545 words as query)
+Config B – Short queries  + Full documents   (fulldoc titles ~5 words as query)
+Config C – Long  queries  + Full corpus      (fulldoc body  ~545 words as query)
 
 All accuracy metrics are computed over the FULL returned result set (@all).
-Classic uses cosine >= COSINE_THRESHOLD; BM25 uses score > mean_positive_per_query.
+
+Run directly:
+    # quick smoke-test (~1–2 min, 1 000-doc corpus, 10 queries, no updates)
+    python evaluation/evaluation.py --quick
+
+    # full runs
+    python evaluation/evaluation.py --all
+    python evaluation/evaluation.py --config-a --max-queries 500
 """
 
 from __future__ import annotations
 
+import os as _os
+import sys as _sys
+
+# Allow `python evaluation/evaluation.py` to be run from the project root
+# by ensuring the project root (parent of this file's directory) is on sys.path.
+_ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+if _ROOT not in _sys.path:
+    _sys.path.insert(0, _ROOT)
+
+import argparse
 import csv
 import gzip
 import json
 import os
 import random
+import sys
 import time
 import tracemalloc
 from typing import Any
@@ -48,13 +66,20 @@ from retrievers.classic_retriever import ClassicRetriever, _jaccard_scores
 # Configuration
 # ---------------------------------------------------------------------------
 
-COSINE_THRESHOLD = 0.05   # Classic: return docs with Jaccard-cosine >= this
+COSINE_THRESHOLD = 0.05
 CORPUS_SIZE_A    = 100_000
 CORPUS_SIZE_BC   = 100_000
-QUERY_SAMPLE_BC  = 10_000   # number of fulldoc titles/bodies used as queries
-UPDATE_CORPUS_N  = 5_000    # smaller corpus used for the update-time experiment
+QUERY_SAMPLE_BC  = 10_000
+UPDATE_CORPUS_N  = 5_000
 N_UPDATE_DOCS    = 100
 SEED             = 42
+
+# Quick-run overrides (used when --quick is passed)
+QUICK_CORPUS_SIZE = 1_000
+QUICK_MAX_QUERIES = 10
+
+DEFAULT_OUTPUT       = "datasets/evaluations/phase1"
+DEFAULT_QUICK_OUTPUT = "datasets/evaluations/phase1_quick"
 
 
 # ---------------------------------------------------------------------------
@@ -62,12 +87,7 @@ SEED             = 42
 # ---------------------------------------------------------------------------
 
 def _retrieve_all_classic(retriever: ClassicRetriever, query_text: str) -> list[str]:
-    """Return all doc_ids with TF-IDF cosine similarity >= COSINE_THRESHOLD.
-
-    Uses cosine similarity (L2-normed dot product) so the 0.05 threshold is
-    consistent with the threshold-analysis study that calibrated it on cosine,
-    not Jaccard (Jaccard is much lower and would return almost nothing).
-    """
+    """Return all doc_ids with TF-IDF cosine similarity >= COSINE_THRESHOLD."""
     if retriever.vectorizer is None or retriever.doc_matrix is None:
         return []
     try:
@@ -76,16 +96,14 @@ def _retrieve_all_classic(retriever: ClassicRetriever, query_text: str) -> list[
         return []
 
     from sklearn.preprocessing import normalize as sk_normalize
-    query_norm = sk_normalize(query_vec, norm="l2")   # (1 × vocab), sparse
+    query_norm = sk_normalize(query_vec, norm="l2")
 
-    # Use pre-computed L2-normalised doc matrix if available
     if hasattr(retriever, "doc_matrix_norm") and retriever.doc_matrix_norm is not None:
         doc_norm = retriever.doc_matrix_norm
     else:
         doc_norm = sk_normalize(retriever.doc_matrix, norm="l2", copy=True)
 
-    scores = doc_norm.dot(query_norm.T).toarray().ravel()   # (n,) cosine sims
-
+    scores = doc_norm.dot(query_norm.T).toarray().ravel()
     mask = scores >= COSINE_THRESHOLD
     if not mask.any():
         return []
@@ -95,12 +113,7 @@ def _retrieve_all_classic(retriever: ClassicRetriever, query_text: str) -> list[
 
 
 def _retrieve_all_bm25(retriever: BM25Retriever, query_text: str) -> list[str]:
-    """Return all doc_ids with BM25 score > mean + std of positive scores.
-
-    Using mean+std (instead of just mean) keeps only the top ~16% of scoring
-    docs under a normal distribution, giving a result set comparable in size
-    to the sketch retrievers (~50-200 docs per query).
-    """
+    """Return all doc_ids with BM25 score > mean+std of positive scores."""
     if retriever._bm25 is None:
         return []
     tokens = _tokenize(query_text)
@@ -125,7 +138,6 @@ def _retrieve_full(retriever: BaseRetriever, retriever_name: str, query_text: st
         return _retrieve_all_classic(retriever, query_text)
     if isinstance(retriever, BM25Retriever):
         return _retrieve_all_bm25(retriever, query_text)
-    # Sketch retrievers already return their full natural result set
     result = retriever.retrieve(query_text)
     if not result:
         return []
@@ -143,7 +155,7 @@ def run_query_with_memory(
     retriever_name: str,
     query_text: str,
 ) -> tuple[list[str], float]:
-    """Run one full-result-set retrieve call; return (doc_ids, peak_memory_mb)."""
+    """Run one full-result-set retrieve; return (doc_ids, peak_memory_mb)."""
     tracemalloc.start()
     try:
         doc_ids = _retrieve_full(retriever, retriever_name, query_text)
@@ -171,11 +183,11 @@ def run_update_experiment(
             print(f"      update() failed [{retriever_name}] doc {idx}: {exc}")
         elapsed = time.perf_counter() - t0
         rows.append({
-            "retriever":              retriever_name,
-            "doc_id":                 doc["key"],
-            "update_index":           idx + 1,
-            "corpus_size_at_update":  corpus_offset + idx + 1,
-            "update_latency_s":       elapsed,
+            "retriever":             retriever_name,
+            "doc_id":                doc["key"],
+            "update_index":          idx + 1,
+            "corpus_size_at_update": corpus_offset + idx + 1,
+            "update_latency_s":      elapsed,
         })
         if (idx + 1) % 10 == 0:
             print(f"\r      {idx + 1}/{n} updates done", end="", flush=True)
@@ -191,7 +203,7 @@ def load_config_a(
     corpus_size: int = CORPUS_SIZE_A,
     seed: int = SEED,
 ) -> tuple[list[dict], list[dict], dict[str, set[str]], list[dict]]:
-    """Config A: short queries (~6 words) + short passage corpus (~52 words).
+    """Config A: short queries + short passage corpus.
 
     Returns: (corpus_docs, eval_queries, qrels, update_docs)
     """
@@ -222,7 +234,6 @@ def load_config_a(
             if query_id not in queries_map:
                 queries_map[query_id] = query_text
 
-    # filter qrels to passages present in corpus
     filtered_qrels: dict[str, set[str]] = {}
     eval_queries: list[dict] = []
     for qid, pids in qrels.items():
@@ -231,12 +242,10 @@ def load_config_a(
             filtered_qrels[qid] = in_corpus
             eval_queries.append({"key": qid, "data": queries_map[qid]})
 
-    # shuffle for reproducibility and limit for speed
     rng = random.Random(seed)
     rng.shuffle(eval_queries)
-    print(f"  Eval queries: {len(eval_queries):,} (all with ≥1 relevant passage in corpus)")
+    print(f"  Eval queries: {len(eval_queries):,}")
 
-    # update docs: next N_UPDATE_DOCS passages from collection (beyond corpus_size)
     print("[Config A] Loading update docs…")
     update_docs: list[dict] = []
     with open(COLLECTION_JSONL) as f:
@@ -274,11 +283,6 @@ def load_configs_bc(
     """Load data shared by Config B and Config C.
 
     Returns: (corpus_docs, queries_b, queries_c, qrels, update_docs)
-      corpus_docs : {"key": url, "data": body}  — the retriever-visible corpus
-      queries_b   : {"key": url, "data": title} — short title queries (Config B)
-      queries_c   : {"key": url, "data": body}  — long body queries  (Config C)
-      qrels       : {url: {url}}                 — self-referential ground truth
-      update_docs : next N_UPDATE_DOCS docs beyond corpus_size
     """
     print(f"[Config B/C] Loading {corpus_size:,} full docs from fulldocs.tsv.gz…")
     all_docs = _load_fulldocs(corpus_size + N_UPDATE_DOCS)
@@ -286,18 +290,14 @@ def load_configs_bc(
     corpus_raw = all_docs[:corpus_size]
     update_raw = all_docs[corpus_size: corpus_size + N_UPDATE_DOCS]
 
-    # corpus_docs in retriever-compatible format (body is the "data")
     corpus_docs = [{"key": d["key"], "data": d["data"]} for d in corpus_raw]
     print(f"  Corpus: {len(corpus_docs):,} full docs.")
 
-    # random sample for queries
     rng = random.Random(seed)
     query_sample = rng.sample(corpus_raw, min(n_queries, len(corpus_raw)))
 
     queries_b = [{"key": d["key"], "data": d["title"]} for d in query_sample]
     queries_c = [{"key": d["key"], "data": d["data"]}  for d in query_sample]
-
-    # self-referential: the answer to a title/body query IS that document
     qrels = {d["key"]: {d["key"]} for d in query_sample}
 
     update_docs = [{"key": d["key"], "data": d["data"]} for d in update_raw]
@@ -323,7 +323,6 @@ def _build_summary(
     for ret in retrievers:
         a = acc_df[acc_df["retriever"] == ret]
         m = mem_df[mem_df["retriever"] == ret]
-
         row: dict[str, Any] = {"retriever": ret}
 
         for col in ["precision_at_all", "recall_at_all", "f1_at_all",
@@ -351,8 +350,19 @@ def _build_summary(
     return pd.DataFrame(rows)
 
 
+def _print_summary(df: pd.DataFrame, config_name: str) -> None:
+    print(f"\n{'─'*65}")
+    print(f"  Summary — {config_name}")
+    print(f"{'─'*65}")
+    cols = ["retriever", "hit_rate_at_all_mean", "mrr_mean", "map",
+            "recall_at_all_mean", "f1_at_all_mean",
+            "memory_mb_mean", "update_latency_mean_s"]
+    cols = [c for c in cols if c in df.columns]
+    print(df[cols].to_string(index=False, float_format=lambda x: f"{x:.4f}"))
+
+
 # ---------------------------------------------------------------------------
-# Mini-corpus update experiment
+# Mini update experiment
 # ---------------------------------------------------------------------------
 
 def _run_mini_update_experiment(
@@ -360,40 +370,17 @@ def _run_mini_update_experiment(
     update_docs: list[dict],
     mini_size: int = UPDATE_CORPUS_N,
 ) -> list[dict]:
-    """Build fresh retrievers on a small corpus slice; time N_UPDATE_DOCS updates.
-
-    We use a mini-corpus (default 5 000 docs) so that DBSCAN-based retrievers
-    (which re-cluster the entire corpus on every update) finish in a reasonable
-    time.  The per-update latency is the meaningful measurement; the absolute
-    corpus size is recorded in the output.
-    """
-    from retrievers.bm25_retriever import BM25Retriever
-    from retrievers.classic_retriever import ClassicRetriever
-    from retrievers.min_hash_dbscan_retriever import MinHashDbscanRetriever
-    from retrievers.min_hash_lsh_retriever import MinHashLshRetriever
-    from retrievers.prob_min_hash_dbscan_retriever import ProbMinHashDbscanRetriever
-    from retrievers.prob_min_hash_lsh_retriever import ProbMinHashLshRetriever
-
+    """Build fresh retrievers on a small corpus slice; time N_UPDATE_DOCS updates."""
     mini_corpus = corpus_docs[:mini_size]
     print(f"\n  ► Update-time experiment ({N_UPDATE_DOCS} updates on {mini_size:,}-doc mini-corpus)…")
 
-    mini_retrievers = {
-        "Classic":           ClassicRetriever(top_k=10, num_initial_documents=0),
-        "BM25":              BM25Retriever(top_k=10, num_initial_documents=0),
-        "MinHashDBSCAN":     MinHashDbscanRetriever(corpus_initial_size=0),
-        "MinHashLSH":        MinHashLshRetriever(corpus_initial_size=0),
-        "ProbMinHashDBSCAN": ProbMinHashDbscanRetriever(corpus_initial_size=0),
-        "ProbMinHashLSH":    ProbMinHashLshRetriever(corpus_initial_size=0),
-    }
-
-    # Build mini-index
+    mini_retrievers = _make_retrievers()
     print(f"    Building mini-corpus retrievers ({mini_size:,} docs)…")
     for name, ret in mini_retrievers.items():
         t0 = time.perf_counter()
         ret.build_corpus_from_docs(mini_corpus)
         print(f"      {name}: {time.perf_counter()-t0:.1f}s")
 
-    # Run update experiments sequentially
     all_rows: list[dict] = []
     for ret_name, ret in mini_retrievers.items():
         print(f"    {ret_name} updates…", end="", flush=True)
@@ -421,18 +408,14 @@ def run_phase1(
     run_updates:  bool = True,
     skip_build:   bool = False,
 ) -> None:
-    """Orchestrate accuracy + memory + update-time for one config. Saves 4 CSVs.
-
-    When skip_build=True the retrievers are assumed to be already built on
-    corpus_docs (e.g. Config C reusing retrievers that were built for Config B).
-    """
+    """Orchestrate accuracy + memory + update-time for one config. Saves CSVs."""
     save_dir = os.path.join(output_dir, config_name)
     os.makedirs(save_dir, exist_ok=True)
 
-    # ── 1. Build all retrievers ───────────────────────────────────────────
     print(f"\n{'='*65}")
     print(f" Phase 1 — {config_name}  ({len(corpus_docs):,} corpus docs)")
     print(f"{'='*65}")
+
     if skip_build:
         print("  (Skipping build — reusing retrievers from previous config)")
     else:
@@ -442,14 +425,12 @@ def run_phase1(
             retriever.build_corpus_from_docs(corpus_docs)
             print(f"    Done in {time.perf_counter()-t0:.1f}s")
 
-    # ── 2. Filter / cap queries ───────────────────────────────────────────
     runnable = [q for q in eval_queries if q["key"] in qrels]
     if max_queries:
         runnable = runnable[:max_queries]
     total_q = len(runnable)
     print(f"\n  Queries to evaluate: {total_q:,}")
 
-    # ── 3. Pre-compute Classic + BM25 full results ─────────────────────────
     classic_full: dict[str, list[str]] = {}
     bm25_full:    dict[str, list[str]] = {}
     classic_ret = retrievers.get("Classic")
@@ -464,7 +445,6 @@ def run_phase1(
         for q in runnable:
             bm25_full[q["key"]] = _retrieve_all_bm25(bm25_ret, q["data"])
 
-    # ── 4. Accuracy + Memory loop ─────────────────────────────────────────
     accuracy_rows: list[dict] = []
     memory_rows:   list[dict] = []
 
@@ -484,32 +464,21 @@ def run_phase1(
                 doc_ids, mem_mb = [], 0.0
 
             k = len(doc_ids)
-            P    = precision_at_k(doc_ids, relevant, k) if k else 0.0
-            R    = recall_at_k(doc_ids, relevant, k)    if k else 0.0
-            F1   = f1_at_all(doc_ids, relevant)
-            NDCG = ndcg_at_k(doc_ids, relevant, k)      if k else 0.0
-            MRR  = mrr(doc_ids, relevant)
-            AP   = average_precision(doc_ids, relevant)
-            HR   = hit_rate_at_all(doc_ids, relevant)
-
-            vs_c = (baseline_precision(doc_ids, classic_full.get(qid, []))
-                    if ret_name != "Classic" else float("nan"))
-            vs_b = (baseline_precision(doc_ids, bm25_full.get(qid, []))
-                    if ret_name != "BM25" else float("nan"))
-
             accuracy_rows.append({
-                "retriever":       ret_name,
-                "query_id":        qid,
-                "n_results":       k,
-                "precision_at_all": P,
-                "recall_at_all":   R,
-                "f1_at_all":       F1,
-                "ndcg_at_all":     NDCG,
-                "mrr":             MRR,
-                "ap":              AP,
-                "hit_rate_at_all": HR,
-                "vs_Classic":      vs_c,
-                "vs_BM25":         vs_b,
+                "retriever":        ret_name,
+                "query_id":         qid,
+                "n_results":        k,
+                "precision_at_all": precision_at_k(doc_ids, relevant, k) if k else 0.0,
+                "recall_at_all":    recall_at_k(doc_ids, relevant, k)    if k else 0.0,
+                "f1_at_all":        f1_at_all(doc_ids, relevant),
+                "ndcg_at_all":      ndcg_at_k(doc_ids, relevant, k)      if k else 0.0,
+                "mrr":              mrr(doc_ids, relevant),
+                "ap":               average_precision(doc_ids, relevant),
+                "hit_rate_at_all":  hit_rate_at_all(doc_ids, relevant),
+                "vs_Classic":       (baseline_precision(doc_ids, classic_full.get(qid, []))
+                                     if ret_name != "Classic" else float("nan")),
+                "vs_BM25":          (baseline_precision(doc_ids, bm25_full.get(qid, []))
+                                     if ret_name != "BM25" else float("nan")),
             })
             memory_rows.append({
                 "retriever": ret_name,
@@ -522,8 +491,6 @@ def run_phase1(
                 print(f"\r    {i+1:>6}/{total_q}  ({elapsed:.0f}s)", end="", flush=True)
         print()
 
-    # ── 5. Update time – uses a small mini-corpus so DBSCAN re-clustering ──
-    #        is feasible (full 100K corpus would be O(n²) per update call).
     update_rows: list[dict] = []
     if run_updates and update_docs:
         update_rows = _run_mini_update_experiment(
@@ -532,7 +499,6 @@ def run_phase1(
             mini_size=UPDATE_CORPUS_N,
         )
 
-    # ── 6. Save CSVs ──────────────────────────────────────────────────────
     acc_path = os.path.join(save_dir, "accuracy.csv")
     mem_path = os.path.join(save_dir, "memory.csv")
     upd_path = os.path.join(save_dir, "update_time.csv")
@@ -548,24 +514,190 @@ def run_phase1(
         list(retrievers.keys()),
     )
     summary_df.to_csv(sum_path, index=False)
-
-    # ── 7. Print summary table ────────────────────────────────────────────
     _print_summary(summary_df, config_name)
     print(f"\n  Saved to {save_dir}/")
 
 
-def _print_summary(df: pd.DataFrame, config_name: str) -> None:
-    print(f"\n{'─'*65}")
-    print(f"  Summary — {config_name}")
-    print(f"{'─'*65}")
-    cols = ["retriever", "hit_rate_at_all_mean", "mrr_mean", "map",
-            "recall_at_all_mean", "f1_at_all_mean",
-            "memory_mb_mean", "update_latency_mean_s"]
-    cols = [c for c in cols if c in df.columns]
-    print(df[cols].to_string(index=False, float_format=lambda x: f"{x:.4f}"))
+# ---------------------------------------------------------------------------
+# Retriever factory
+# ---------------------------------------------------------------------------
+
+def _make_retrievers() -> dict[str, BaseRetriever]:
+    """Instantiate all 6 retrievers in lazy mode (no auto-build)."""
+    from retrievers.bm25_retriever import BM25Retriever
+    from retrievers.classic_retriever import ClassicRetriever
+    from retrievers.min_hash_dbscan_retriever import MinHashDbscanRetriever
+    from retrievers.min_hash_lsh_retriever import MinHashLshRetriever
+    from retrievers.prob_min_hash_dbscan_retriever import ProbMinHashDbscanRetriever
+    from retrievers.prob_min_hash_lsh_retriever import ProbMinHashLshRetriever
+
+    return {
+        "Classic":           ClassicRetriever(top_k=10, num_initial_documents=0),
+        "BM25":              BM25Retriever(top_k=10, num_initial_documents=0),
+        "MinHashDBSCAN":     MinHashDbscanRetriever(corpus_initial_size=0),
+        "MinHashLSH":        MinHashLshRetriever(corpus_initial_size=0),
+        "ProbMinHashDBSCAN": ProbMinHashDbscanRetriever(corpus_initial_size=0),
+        "ProbMinHashLSH":    ProbMinHashLshRetriever(corpus_initial_size=0),
+    }
 
 
+# ---------------------------------------------------------------------------
+# CLI entry point
+# ---------------------------------------------------------------------------
 
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Phase 1 Retrieval Evaluation",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python evaluation/evaluation.py --quick             # smoke-test, ~1–2 min
+  python evaluation/evaluation.py --all               # full run, all 3 configs
+  python evaluation/evaluation.py --config-a --max-queries 500
+        """,
+    )
+    parser.add_argument("--config-a",    action="store_true", help="Run Config A")
+    parser.add_argument("--config-b",    action="store_true", help="Run Config B")
+    parser.add_argument("--config-c",    action="store_true", help="Run Config C")
+    parser.add_argument("--all",         action="store_true", help="Run all 3 configs")
+    parser.add_argument(
+        "--quick", action="store_true",
+        help=(
+            f"Smoke-test: {QUICK_CORPUS_SIZE:,}-doc corpus, "
+            f"{QUICK_MAX_QUERIES} queries, no updates. "
+            f"Saves to {DEFAULT_QUICK_OUTPUT}/ (never overwrites {DEFAULT_OUTPUT}/)."
+        ),
+    )
+    parser.add_argument("--max-queries", type=int, default=None,
+                        help="Cap number of eval queries per config")
+    parser.add_argument("--no-updates",  action="store_true",
+                        help="Skip the update-time experiment")
+    parser.add_argument("--output-dir",  default=None,
+                        help=f"Output root (default: {DEFAULT_OUTPUT}; "
+                             f"{DEFAULT_QUICK_OUTPUT} when --quick)")
+    args = parser.parse_args()
+
+    if args.all:
+        args.config_a = args.config_b = args.config_c = True
+
+    # --quick: safe defaults — tiny corpus, separate output dir, no updates
+    if args.quick:
+        if not (args.config_a or args.config_b or args.config_c):
+            args.config_a = True              # default to Config A
+        if args.max_queries is None:
+            args.max_queries = QUICK_MAX_QUERIES
+        args.no_updates = True
+        if args.output_dir is None:
+            args.output_dir = DEFAULT_QUICK_OUTPUT
+
+    if args.output_dir is None:
+        args.output_dir = DEFAULT_OUTPUT
+
+    if not (args.config_a or args.config_b or args.config_c):
+        parser.error("Specify at least one of --config-a/b/c, or use --all / --quick")
+
+    os.makedirs(args.output_dir, exist_ok=True)
+
+    corpus_a  = QUICK_CORPUS_SIZE if args.quick else CORPUS_SIZE_A
+    corpus_bc = QUICK_CORPUS_SIZE if args.quick else CORPUS_SIZE_BC
+
+    t_global = time.perf_counter()
+    shared_bc = None
+
+    # ── Config A ─────────────────────────────────────────────────────────────
+    if args.config_a:
+        print("\n" + "="*70)
+        print(" CONFIG A  —  Short queries  +  Short passage corpus")
+        if args.quick:
+            print(f"  [QUICK: {corpus_a:,}-doc corpus, "
+                  f"max {args.max_queries} queries, no updates]")
+        print("="*70)
+
+        corpus_docs, eval_queries, qrels, update_docs = load_config_a(
+            corpus_size=corpus_a
+        )
+        run_phase1(
+            retrievers   = _make_retrievers(),
+            corpus_docs  = corpus_docs,
+            eval_queries = eval_queries,
+            qrels        = qrels,
+            config_name  = "config_a",
+            output_dir   = args.output_dir,
+            update_docs  = update_docs,
+            max_queries  = args.max_queries,
+            run_updates  = not args.no_updates,
+        )
+
+    # ── Config B / C shared data load ────────────────────────────────────────
+    if args.config_b or args.config_c:
+        print("\nLoading shared full-docs data (Config B/C)…")
+        if args.quick:
+            print(f"  [QUICK: {corpus_bc:,}-doc corpus]")
+        shared_bc = load_configs_bc(corpus_size=corpus_bc)
+
+    # ── Config B ─────────────────────────────────────────────────────────────
+    if args.config_b:
+        print("\n" + "="*70)
+        print(" CONFIG B  —  Short queries (doc titles)  +  Full document corpus")
+        print("="*70)
+
+        corpus_docs, queries_b, queries_c, qrels, update_docs = shared_bc
+        retrievers_b = _make_retrievers()
+        run_phase1(
+            retrievers   = retrievers_b,
+            corpus_docs  = corpus_docs,
+            eval_queries = queries_b,
+            qrels        = qrels,
+            config_name  = "config_b",
+            output_dir   = args.output_dir,
+            update_docs  = update_docs,
+            max_queries  = args.max_queries,
+            run_updates  = False,
+        )
+        # pass built retrievers to Config C to avoid rebuilding
+        shared_bc = (corpus_docs, queries_b, queries_c, qrels, update_docs, retrievers_b)
+
+    # ── Config C ─────────────────────────────────────────────────────────────
+    if args.config_c:
+        print("\n" + "="*70)
+        print(" CONFIG C  —  Long queries (doc bodies)   +  Full document corpus")
+        print("="*70)
+
+        if shared_bc and len(shared_bc) == 6:
+            corpus_docs, queries_b, queries_c, qrels, update_docs, retrievers_c = shared_bc
+            skip_build = True
+        elif shared_bc:
+            corpus_docs, queries_b, queries_c, qrels, update_docs = shared_bc
+            retrievers_c = _make_retrievers()
+            skip_build = False
+        else:
+            corpus_docs, queries_b, queries_c, qrels, update_docs = load_configs_bc(
+                corpus_size=corpus_bc
+            )
+            retrievers_c = _make_retrievers()
+            skip_build = False
+
+        run_phase1(
+            retrievers   = retrievers_c,
+            corpus_docs  = corpus_docs,
+            eval_queries = queries_c,
+            qrels        = qrels,
+            config_name  = "config_c",
+            output_dir   = args.output_dir,
+            update_docs  = update_docs,
+            max_queries  = args.max_queries,
+            run_updates  = not args.no_updates,
+            skip_build   = skip_build,
+        )
+
+    elapsed = time.perf_counter() - t_global
+    print(f"\n{'='*70}")
+    print(f" Done in {elapsed/60:.1f} min  |  Results: {args.output_dir}")
+    print(f"{'='*70}")
+
+
+if __name__ == "__main__":
+    main()
 
 
 
