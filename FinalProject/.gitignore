@@ -212,6 +212,6 @@ datasets/**
 !datasets/**/
 
 # Phase 1 evaluation results — explicitly tracked
-!datasets/evaluations/phase1/**
+!datasets/evaluations/raw_results/**
 !datasets/evaluations/phase1_quick/**
 

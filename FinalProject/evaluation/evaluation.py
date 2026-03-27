@@ -78,7 +78,7 @@ SEED             = 42
 QUICK_CORPUS_SIZE = 1_000
 QUICK_MAX_QUERIES = 10
 
-DEFAULT_OUTPUT       = "datasets/evaluations/phase1"
+DEFAULT_OUTPUT       = "datasets/evaluations/raw_results"
 DEFAULT_QUICK_OUTPUT = "datasets/evaluations/phase1_quick"
 
 

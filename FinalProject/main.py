@@ -1,5 +1,5 @@
 """
-main.py  –  Phase 1 evaluation entry point
+main.py  –  evaluation entry point
 
 Usage
 -----
