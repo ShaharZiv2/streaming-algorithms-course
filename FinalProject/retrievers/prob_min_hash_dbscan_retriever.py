@@ -49,15 +49,20 @@ class ProbMinHashDbscanRetriever(BaseMinHashDbscanRetriever):
 
         print(f"[ProbMinHashRetriever] Building ProbMinHash signatures…")
         sketches = []
+        valid_ids = []
         for i in range(self.corpus_size):
             start, end = tfidf_matrix.indptr[i], tfidf_matrix.indptr[i + 1]
             doc_keys = tfidf_matrix.indices[start:end]
             doc_weights = tfidf_matrix.data[start:end]
+            if len(doc_keys) == 0:
+                continue   # skip docs with empty TF-IDF vocab
             pmh = ProbMinHash4(num_perm=128, seed=SEED)
             pmh.fit(doc_keys, doc_weights)
             sketches.append(pmh.hashvalues)
+            valid_ids.append(self.doc_ids_list[i])
 
-        self.ids = self.doc_ids_list
+        self.ids = valid_ids
+        self.signatures = np.nan_to_num(np.array(sketches, dtype=np.float64), nan=0.0)
         self.signatures = np.array(sketches)
         self.min_hash_cursor = self.corpus_size
 
