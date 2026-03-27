@@ -8,6 +8,7 @@ PROCESSED_PROB_MIN_HASH_FILES_DIR = f'{PROCESSED_FILES_DIR}/prob_min_hash'
 COLLECTION_URL = 'https://msmarco.z22.web.core.windows.net/msmarcoranking/collection.tar.gz'
 QUERIES_URL = 'https://msmarco.z22.web.core.windows.net/msmarcoranking/queries.tar.gz'
 QRELS_URL = 'https://msmarco.z22.web.core.windows.net/msmarcoranking/qrels.dev.tsv'
+FULLDOCS_URL = 'https://msmarco.z22.web.core.windows.net/msmarcoranking/fulldocs.tsv.gz'
 
 COLLECTION_TSV = f'{TSV_FILES_DIR}/collection.tsv'
 QUERIES_TSV = f'{TSV_FILES_DIR}/queries.tsv'
